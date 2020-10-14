@@ -1,16 +1,17 @@
 import Aufgabe1.src.EreignisListe as event
 
 class KundIn:
+
   def __init__(self, stationList):
     self.stationList = stationList
 
-  def begin():
+  def begin(self, station):
+
+
+  def arrive(self):
     return 0
 
-  def arrive():
-    return 0
-
-  def leave():
+  def leave(self):
     return 0
 
 # •	Beginn des Einkaufs

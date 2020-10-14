@@ -1,4 +1,3 @@
-from Aufgabe1.src.Ereignis import Ereignis
 from Aufgabe1.src.EreignisListe import EreignisListe
 from Aufgabe1.src.KundIn import KundIn
 from Aufgabe1.src.Station import Station
@@ -23,10 +22,10 @@ T2 = KundIn([
     (20, 20, 3),
 ])
 
-initialisierungsListe = [
-    (0, 0, 0, lambda kundin, station : kundin.begin(station), [T1, bakery])
+initListe = [
+    (0, 0, 0, lambda kundin, station: kundin.begin(station), [T1, bakery])
 ]
 
 if __name__ == "__main__":
-    ereignisListe = EreignisListe(initialisierungsListe)
+    ereignisListe = EreignisListe(initListe)
     ereignisListe.start()
