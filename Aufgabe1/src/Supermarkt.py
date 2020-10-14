@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from Aufgabe1.src.EreignisListe import EreignisListe
 from Aufgabe1.src.KundIn import KundIn
 from Aufgabe1.src.Station import Station
@@ -7,6 +9,9 @@ bakery = Station('Bäcker', 10)
 butcher = Station('Wursttheke', 30)
 cheese = Station('Cheese', 60)
 checkout = Station('Kasse', 5)
+
+ereignisListe = []
+global ereignisListe
 
 T1 = KundIn([
     # (Zeit von A nach B, max. Schlange, Anz. Einkäufe)
@@ -22,10 +27,21 @@ T2 = KundIn([
     (20, 20, 3),
 ])
 
-initListe = [
-    (0, 0, 0, lambda kundin, station: kundin.begin(station), [T1, bakery])
+# Ereigniszeitpunkt, Ereignispriorität, Ereignisnummer, Ereignisfunktion, (optional) Ereignisargumenten
+Ereignis = namedtuple('Ereignis', 'Ereigniszeitpunkt, Ereignispriorität, Ereignisnummer, Ereignisfunktion, args')
+e1 = Ereignis()
+e1.
+
+def begin(kunden):
+    ereignisListe.push(kunde)
+    ereignisListe.push()
+
+event = namedtuple('e', 'eTime, ePrio, eNum, eFun, eArgs')
+initEreignisListe = [
+    event(0, 0, 0, lambda kundin, station: kundin.begin(station), [T1, bakery])
+    event(0, 0, 0, lambda kundin, station: kundin.begin(station), [T1, bakery])
 ]
 
 if __name__ == "__main__":
-    ereignisListe = EreignisListe(initListe)
+    ereignisListe = EreignisListe(initEreignisListe)
     ereignisListe.start()

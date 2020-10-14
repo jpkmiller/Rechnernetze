@@ -1,4 +1,5 @@
 import Aufgabe1.src.EreignisListe as event
+import Aufgabe1.src.Supermarkt as sm
 
 class KundIn:
 
@@ -6,7 +7,7 @@ class KundIn:
     self.stationList = stationList
 
   def begin(self, station):
-
+    sm.ereignisListe.push()
 
   def arrive(self):
     return 0

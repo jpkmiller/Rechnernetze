@@ -24,8 +24,10 @@ class EreignisListe:
     @staticmethod
     def start():
         while len(EreignisListe.eventQueue) > 0:
-            EreignisListe.eventNumber += 1
-            ereignis = EreignisListe.pop()
+            EreignisListe.eventQueue.pop()[3](x=0)
+
+            # EreignisListe.eventNumber += 1
+            # ereignis = EreignisListe.pop()
             # ereignis 3 ist der lambda Ausdruck
             # ereignis 4 sind die lambda Argumente
-            ereignis[3](ereignis[4][0], ereignis[4][1])
+            # ereignis[3](ereignis[4][1], ereignis[4][0])
