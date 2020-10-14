@@ -24,7 +24,7 @@ T2 = KundIn([
 ])
 
 initialisierungsListe = [
-    (0, 0, 0, lambda kundin : kundin.begin(bakery))
+    (0, 0, 0, lambda kundin, station : kundin.begin(station), [T1, bakery])
 ]
 
 if __name__ == "__main__":

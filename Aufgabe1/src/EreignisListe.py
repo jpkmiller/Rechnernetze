@@ -24,4 +24,4 @@ class EreignisListe:
     def start():
         while len(EreignisListe.eventQueue) > 0:
             EreignisListe.eventNumber += 1
-            EreignisListe
+            EreignisListe[3]
