@@ -1,10 +1,10 @@
 # %% Testcell
 from collections import namedtuple
 
-from Aufgabe1.src.EreignisListe import EreignisListe
+from Aufgabe1.src.EventList import EventList
 from Aufgabe1.src.KundIn import KundIn
 
-eventList = EreignisListe([])
+eventList = EventList([])
 event = namedtuple('e', 'eTime, ePrio, eNum, eFun, eArgs')
 counter = 0
 
@@ -35,5 +35,5 @@ def test(x: list):
 a = event(0, 2, 0, test, ["event a"])
 b = event(1, 2, 1, lambda x: print("event b"), [])
 
-eventList = EreignisListe([b, a])
+eventList = EventList([b, a])
 eventList.start()

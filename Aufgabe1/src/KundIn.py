@@ -1,41 +1,52 @@
-import Aufgabe1.src.Supermarkt as sm
-from Aufgabe1.src import Supermarkt
-from Aufgabe1.src.EreignisListe import EreignisListe
+from Aufgabe1.src.EventList import EventList
 from Aufgabe1.src.Station import Station
 
 
 class KundIn:
-    def __init__(self, stationList: list, timeBetweenCustomers):
-        self.stationList: list = list(stationList)
-        self.timeBetweenCustomers = timeBetweenCustomers
+    def __init__(self, station_list: list, time_between_customers):
+        self.stationList: list = list(station_list)
+        self.timeBetweenCustomers = time_between_customers
 
     def begin(self, args):
+        # instantiate next Customer
         next_customer = KundIn(self.stationList, self.timeBetweenCustomers)
-        begin_event = Supermarkt.event(eTime=EreignisListe.simulationTime + self.timeBetweenCustomers, ePrio=2,
-                                       eNum=++Supermarkt.counter,
-                                       eFun=next_customer.begin,
-                                       eArgs=[next_customer])
-        station = self.stationList[0]
-        arrive_event = Supermarkt.event(eTime=EreignisListe.simulationTime + station[0], ePrio=1,
-                                        eNum=++Supermarkt.counter, eFun=self.arrive,
-                                        eArgs=[])
-        Supermarkt.event_list.push(begin_event)
-        Supermarkt.event_list.push(arrive_event)
+        # create begin event for next customer
+        begin_event = EventList.event(eTime=EventList.simulationTime + self.timeBetweenCustomers,
+                                      ePrio=2,
+                                      eNum=EventList.next(),
+                                      eFun=next_customer.begin,
+                                      eArgs=[])
+        # start current customers purchase
+        time_to_station = self.stationList[0][0]
+        arrive_event = EventList.event(eTime=EventList.simulationTime + time_to_station, ePrio=3,
+                                       eNum=EventList.next(), eFun=self.arrive,
+                                       eArgs=[])
+        EventList.push(begin_event)
+        EventList.push(arrive_event)
         return
 
-    def arrive(self, at: Station):
-        if at.customer_queue.__sizeof__() > 0:
-            at.queue(self)
+    def arrive(self, args):
+        station = self.stationList[0]
+        if len(station[3].customer_queue) < station[1]:
+            station[3].queue(self)
         else:
-            at.serve(self.stationList[0][2])
-        station = self.stationList[0]
-        leave_event = Supermarkt.event(eTime=EreignisListe.simulationTime + station[1], ePrio=3,
-                                       eNum=++Supermarkt.counter, eFun=self.leave, eArgs=[])
-        Supermarkt.event_list.push(leave_event)
+            self.stationList.pop(0)
+            arrive_event = EventList.event(eTime=EventList.simulationTime + station[0], ePrio=3,
+                                           eNum=EventList.next(), eFun=self.arrive, eArgs=[])
+            EventList.push(arrive_event)
         return
 
-    def leave(self):
+    def leave(self, args):
+        last_station: Station = self.stationList.pop(0)[3]
+        if len(last_station.customer_queue) > 0:
+            last_station.customer_queue.pop(0)
+        last_station.serve()
 
+        if len(self.stationList) <= 0:
+            return
+        arrive_event = EventList.event(eTime=EventList.simulationTime + self.stationList[0][0], ePrio=3,
+                                       eNum=EventList.next(), eFun=self.arrive, eArgs=[])
+        EventList.push(arrive_event)
         return
 
 # •	Beginn des Einkaufs
