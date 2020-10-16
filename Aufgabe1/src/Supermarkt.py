@@ -10,16 +10,17 @@ butcher = Station('Wursttheke', 30)
 cheese = Station('Cheese', 60)
 checkout = Station('Kasse', 5)
 
-ereignisListe = []
-global ereignisListe
+event_list = []
+global event_list
+counter = 0
 
-T1 = KundIn([
+T1 = KundIn(stationList=[
     # (Zeit von A nach B, max. Schlange, Anz. Einkäufe)
     (10, 10, 10),
     (30, 10, 5),
     (45, 5, 3),
     (60, 20, 30)
-])
+], timeBetweenCustomers=60)
 
 T2 = KundIn([
     (30, 5, 2),
@@ -32,9 +33,11 @@ Ereignis = namedtuple('Ereignis', 'Ereigniszeitpunkt, Ereignispriorität, Ereign
 e1 = Ereignis()
 e1.
 
+
 def begin(kunden):
-    ereignisListe.push(kunde)
-    ereignisListe.push()
+    event_list.push(kunde)
+    event_list.push()
+
 
 event = namedtuple('e', 'eTime, ePrio, eNum, eFun, eArgs')
 initEreignisListe = [
@@ -43,5 +46,5 @@ initEreignisListe = [
 ]
 
 if __name__ == "__main__":
-    ereignisListe = EreignisListe(initEreignisListe)
-    ereignisListe.start()
+    event_list = EreignisListe(initEreignisListe)
+    event_list.start()

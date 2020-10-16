@@ -15,7 +15,7 @@ class EreignisListe:
     def pop():
         if len(EreignisListe.eventQueue) > 0:
             return heapq.heappop(EreignisListe.eventQueue)
-        return ()
+        return
 
     @staticmethod
     def push(event):
@@ -23,8 +23,11 @@ class EreignisListe:
 
     @staticmethod
     def start():
+        EreignisListe.index = 0
         while len(EreignisListe.eventQueue) > 0:
-            EreignisListe.eventQueue.pop()[3](x=0)
+            e = EreignisListe.eventQueue.pop()
+            print(e.ePrio)
+            e.eFun(e.eArgs)
 
             # EreignisListe.eventNumber += 1
             # ereignis = EreignisListe.pop()
