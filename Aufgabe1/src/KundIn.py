@@ -8,44 +8,62 @@ class KundIn:
         self.timeBetweenCustomers = time_between_customers
 
     def begin(self, args):
-        # instantiate next Customer
+        # instantiate next Customer (copy of current customer)
         next_customer = KundIn(self.stationList, self.timeBetweenCustomers)
-        # create begin event for next customer
+        # create begin event for next customer (next customer of same type gets announced)
         begin_event = EventList.event(eTime=EventList.simulationTime + self.timeBetweenCustomers,
                                       ePrio=2,
                                       eNum=EventList.next(),
                                       eFun=next_customer.begin,
                                       eArgs=[])
-        # start current customers purchase
+        # create event for arriving at first station of current customer
         time_to_station = self.stationList[0][0]
         arrive_event = EventList.event(eTime=EventList.simulationTime + time_to_station, ePrio=3,
                                        eNum=EventList.next(), eFun=self.arrive,
                                        eArgs=[])
+        # push created events on heap
         EventList.push(begin_event)
         EventList.push(arrive_event)
         return
 
     def arrive(self, args):
+        # get station, customer should arrive to
         station = self.stationList[0]
+        # check if queue of station is too long
         if len(station[3].customer_queue) < station[1]:
+            # queue up to make the purchase at the current station
+            # everything else decides the station the customer is queued in
             station[3].queue(self)
+        # skip purchase if queue was too long
         else:
+            # delete station to mark it as done
             self.stationList.pop(0)
+            # create event for arriving at next station
             arrive_event = EventList.event(eTime=EventList.simulationTime + station[0], ePrio=3,
                                            eNum=EventList.next(), eFun=self.arrive, eArgs=[])
+            # push event on heap
             EventList.push(arrive_event)
         return
 
     def leave(self, args):
+        # get and delete station to mark it as done
         last_station: Station = self.stationList.pop(0)[3]
+        # if statement should always be true!
         if len(last_station.customer_queue) > 0:
+            # delete customer out of stations queue
             last_station.customer_queue.pop(0)
+        # start serving next customer
         last_station.serve()
+        # todo: maybe its better to make a wrapper method inside Station to queue out and start serving next customer?
 
+        # setup next station:
+        # return if all stations are done -> customer has finished
         if len(self.stationList) <= 0:
             return
+        # create event for arriving at next station
         arrive_event = EventList.event(eTime=EventList.simulationTime + self.stationList[0][0], ePrio=3,
                                        eNum=EventList.next(), eFun=self.arrive, eArgs=[])
+        # push event on heap
         EventList.push(arrive_event)
         return
 
