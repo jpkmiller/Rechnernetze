@@ -30,6 +30,7 @@ class KundIn:
         return
 
     def arrive(self, args):
+
         station = self.station_list[0]
         print(str(self) + " arrive " + str(station[3]) + " at " + str(EL.simulation_time))
 
@@ -47,6 +48,7 @@ class KundIn:
         print(str(self) + " leave " + str(station[3]) + " at " + str(EL.simulation_time))
         if len(self.station_list) <= 0:
             return
+        # create event for arriving at next station
         arrive_event = EL.Event(eTime=EL.simulation_time + self.station_list[0][0], ePrio=3,
                                 eNum=EL.next(), eFun=self.arrive, eArgs=[])
         EL.push(arrive_event)

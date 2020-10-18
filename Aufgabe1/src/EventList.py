@@ -12,7 +12,6 @@ class EventList:
     @staticmethod
     def next():
         EventList.event_number += 1
-
         return EventList.event_number
 
     @staticmethod
