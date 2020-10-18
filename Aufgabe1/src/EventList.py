@@ -1,38 +1,33 @@
 import heapq
 from collections import namedtuple
 
-class EventList:
-    eventQueue = []
-    eventNumber = 0
-    simulationTime = 0
-    event = namedtuple(typename='event', field_names=['eTime', 'ePrio', 'eNum', 'eFun', 'eArgs'], rename=False)
-    counter = 0
 
-    @staticmethod
-    def __init__(__list__):
-        EventList.eventQueue = __list__
-        heapq.heapify(EventList.eventQueue)
+class EventList:
+    event_queue = []
+    event_number = 0
+    heapq.heapify(event_queue)
+    simulation_time = 0
+    Event = namedtuple(typename='event', field_names=['eTime', 'ePrio', 'eNum', 'eFun', 'eArgs'], rename=False)
 
     @staticmethod
     def next():
-        EventList.counter = EventList.counter + 1
-        return EventList.counter
+        EventList.event_number += 1
+
+        return EventList.event_number
 
     @staticmethod
     def pop():
-        if len(EventList.eventQueue) > 0:
-            return heapq.heappop(EventList.eventQueue)
+        if len(EventList.event_queue) > 0:
+            return heapq.heappop(EventList.event_queue)
         return ()
 
     @staticmethod
     def push(event):
-        heapq.heappush(EventList.eventQueue, event)
+        heapq.heappush(EventList.event_queue, event)
 
     @staticmethod
     def start():
-        while len(EventList.eventQueue) > 0:
-            EventList.eventNumber += 1
-            ereignis = EventList.pop()
-            # ereignis 3 ist der lambda Ausdruck
-            # ereignis 4 sind die lambda Argumente
-            ereignis[3](ereignis[4][0], ereignis[4][1])
+        while len(EventList.event_queue) > 0 and EventList.event_number < 50:
+            e = EventList.pop()
+            EventList.simulation_time = e.eTime
+            e.eFun(e.eArgs)

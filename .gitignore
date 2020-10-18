@@ -1,0 +1,8 @@
+/Beispiele
+/Folien
+/.idea
+/Aufgabe1/.idea/
+*.pyc
+*.docx
+*.xlsx
+*.pptx
