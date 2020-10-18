@@ -1,26 +1,46 @@
-import Aufgabe1.src.EreignisListe as event
+import Aufgabe1.src.EventList as EL
+
 
 class KundIn:
 
-  def __init__(self, stationList):
-    self.stationList = stationList
+    def __init__(self, station_list, time_between_customers):
+        self.station_list = station_list
+        self.time_between_customers = time_between_customers
 
-  def begin(self, station):
+    def begin(self, station):
+        # instantiate next Customer (copy of current customer)
+        next_customer = KundIn(self.stationList, self.time_between_customers)
+        # create begin event for next customer (next customer of same type gets announced)
+        begin_event = EL.event(eTime=EL.simulationTime + self.time_between_customers,
+                               ePrio=2,
+                               eNum=EL.next(),
+                               eFun=next_customer.begin,
+                               eArgs=[])
+        # create event for arriving at first station of current customer
+        time_to_station = self.stationList[0][0]
+        arrive_event = EL.event(eTime=EL.simulationTime + time_to_station, ePrio=3,
+                                eNum=EL.next(), eFun=self.arrive,
+                                eArgs=[])
+        # push created events on heap
+        EL.push(begin_event)
+        EL.push(arrive_event)
+        return
 
+    def arrive(self):
+        station = self.station_list[0]
 
-  def arrive(self):
-    return 0
+        if len(station[3].customer_queue) < station[1]:
+            station[3].queue(self)
+        else:
+            self.station_list.pop()
 
-  def leave(self):
-    return 0
+            arrive_event = EL.event(eTime=EL.simulationTime + station[0], ePrio=3,
+                                    eNum=EL.next(), eFun=self.arrive, eArgs=[])
+            EL.push(arrive_event)
 
-# •	Beginn des Einkaufs
-# o	Ereignis Ankunft an der ersten Station erzeugen
-# o	nächstes Ereignis Beginn des Einkaufs für den gleichen KundInnen-Typ erzeugen
-# •	Ankunft an einer Station
-# o	anhand der Warteschlangenlänge überprüfen, ob an der Station eingekauft wird
-# o	wenn eingekauft wird, entweder Einreihen in die Warteschlange (Systemzustand ändern) oder im Falle einer direkten Bedienung das Ereignis Verlassen der Station erzeugen
-# o	wenn nicht eingekauft wird, direkt das Ereignis Ankunft an der nächsten Station erzeugen
-# •	Verlassen einer Station
-# o	Ereignis Ankunft an der nächsten Station erzeugen
-# o	wenn sich weitere KundInnnen in der Warteschlange befinden, erste KundIn aus der Warteschlange nehmen und Ereignis Verlassen der Station für die nächste KundIn erzeugen
+    def leave(self):
+        self.station_list.pop()
+
+        arrive_event = EL.event(eTime=EL.simulationTime + self.station_list[0][0], ePrio=3,
+                                eNum=EL.next(), eFun=self.arrive, eArgs=[])
+        EL.push(arrive_event)

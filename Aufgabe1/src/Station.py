@@ -1,3 +1,4 @@
+from Aufgabe1.src.EventList import EventList as EL
 import time
 
 
@@ -6,16 +7,17 @@ class Station:
     def __init__(self, name, __time__=30):
         self.name = name
         self.time = time
-        self.queue = []
+        self.customer_queue = []
 
     def queue(self, kundin):
-        if self.queue.length > 0:
-            self.queue.append(kundin)
-        else:
-            self.serve(kundin)
+        # add customer to queue
+        self.queue.append(kundin)
+        if len(self.customer_queue) == 0:
+            self.serve()
+        return
 
-    def serve(self, amountItems):
-        amountRemainingItems = amountItems
-        while amountRemainingItems > 0:
-            amountRemainingItems -= 1
-            time.sleep(self.time)
+    def serve(self):
+        # customer has to be removed from serve_queue
+        customer = self.customer_queue.pop()
+        leave_event = EL.event(eTime=EL.simulationTime + customer.stationList[0][2] * self.time, ePrio=1, eNum=EL.next(), eFun=customer.leave, eArgs=[])
+        EL.push(leave_event)
