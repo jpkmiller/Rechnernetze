@@ -1,4 +1,5 @@
 from Aufgabe1.src.EventList import EventList as EL
+from Aufgabe1.src.Logger import Logger as L
 
 
 class Station:
@@ -19,9 +20,9 @@ class Station:
         if len(self.customer_queue) <= 0:
             return
         customer = self.customer_queue.pop(0)
-        leave_event = EL.Event(eTime=EL.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
+        leave_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                                eNum=EL.next(), eFun=customer.leave, eArgs=[])
-        serve_next_event = EL.Event(eTime=EL.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
+        serve_next_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                               eNum=EL.next(), eFun=self.serve, eArgs=[])
         EL.push(leave_event)
         EL.push(serve_next_event)

@@ -1,0 +1,5 @@
+Simulationsende: 271
+Anzahl Kunden: 7
+Anzahl vollständige Einkäufe: 2
+Mittlere Einkaufsdauer: 0
+Mittlere Einkaufsdauer (vollständig): 0
