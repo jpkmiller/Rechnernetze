@@ -13,13 +13,13 @@ T1 = KundIn([
     (30, 10, 5, butcher),
     (45, 5, 3, cheese),
     (60, 20, 30, checkout),
-], 200, 'T1')
+], 200, '1')
 
 T2 = KundIn([
     (30, 5, 2, butcher),
     (30, 20, 3, checkout),
     (20, 20, 3, bakery),
-], 60, 'T2')
+], 60, '2')
 
 if __name__ == "__main__":
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))

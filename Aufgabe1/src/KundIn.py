@@ -8,11 +8,13 @@ class KundIn:
         self.station_list = station_list
         self.time_between_customers = time_between_customers
         self.type = typ
+        self.count = 1
 
     def begin(self, args):
         print(str(self) + " begin at " + str(EL.simulation_time))
         # instantiate next Customer (copy of current customer)
         next_customer = deepcopy(self)
+        next_customer.count = next_customer.count + 1
         # create begin event for next customer (next customer of same type gets announced)
         begin_event = EL.Event(eTime=EL.simulation_time + self.time_between_customers,
                                ePrio=2,
@@ -54,4 +56,4 @@ class KundIn:
         EL.push(arrive_event)
 
     def __repr__(self):
-        return "K" + self.type
+        return "K" + self.type + "-" + str(self.count)
