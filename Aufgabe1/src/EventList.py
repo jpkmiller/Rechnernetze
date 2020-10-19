@@ -6,8 +6,8 @@ class EventList:
     event_queue = []
     event_number = 0
     heapq.heapify(event_queue)
-    simulation_time = 0
     Event = namedtuple(typename='event', field_names=['eTime', 'ePrio', 'eNum', 'eFun', 'eArgs'], rename=False)
+    simulation_time = 0
 
     @staticmethod
     def next():
