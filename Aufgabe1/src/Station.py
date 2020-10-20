@@ -23,7 +23,7 @@ class Station:
         leave_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                                eNum=EL.next(), eFun=customer.leave, eArgs=[])
         serve_next_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
-                              eNum=EL.next(), eFun=self.serve, eArgs=[])
+                                    eNum=EL.next(), eFun=self.serve, eArgs=[])
         EL.push(leave_event)
         EL.push(serve_next_event)
 

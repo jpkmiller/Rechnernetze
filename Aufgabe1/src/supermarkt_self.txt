@@ -1,5 +1,5 @@
-Simulationsende: 271
-Anzahl Kunden: 7
-Anzahl vollständige Einkäufe: 2
-Mittlere Einkaufsdauer: 0
-Mittlere Einkaufsdauer (vollständig): 0
+Simulationsdauer: 43231
+Anzahl Kunden: 938
+Anzahl vollständige Einkäufe: 931
+Mittlere Einkaufsdauer: 119.93070362473348
+Mittlere Einkaufsdauer (vollständig): 120.2953813104189
