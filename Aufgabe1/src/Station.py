@@ -1,9 +1,12 @@
 from Aufgabe1.src.EventList import EventList as EL
+from threading import Thread
+import time
 
 
-class Station:
+class Station(Thread):
 
     def __init__(self, name, __time__=30):
+        Thread.__init__(self)
         self.name = name
         self.time = __time__
         self.customer_queue = []
@@ -16,6 +19,10 @@ class Station:
         return
 
     def serve(self, args):
+        # the time it takes to service a customer is simulated by the station
+        # thread going to sleep for the duration of the service.
+        time.sleep(self.time)
+
         if len(self.customer_queue) <= 0:
             return
         customer = self.customer_queue.pop(0)

@@ -13,15 +13,21 @@ T1 = KundIn([
     (30, 10, 5, butcher),
     (45, 5, 3, cheese),
     (60, 20, 30, checkout),
-], 200, '1')
+], 200, 'A')
 
 T2 = KundIn([
     (30, 5, 2, butcher),
     (30, 20, 3, checkout),
     (20, 20, 3, bakery),
-], 60, '2')
+], 60, 'B')
 
 if __name__ == "__main__":
+    # station threads are started at the beginning of the simulation
+    #bakery.start()
+    #butcher.start()
+    #cheese.start()
+    #checkout.start()
+
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
     EL.start()

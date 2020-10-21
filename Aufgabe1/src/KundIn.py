@@ -1,16 +1,21 @@
 from Aufgabe1.src.EventList import EventList as EL
 from copy import deepcopy
+from threading import Thread
+import time
 
+class KundIn(Thread):
 
-class KundIn:
-
-    def __init__(self, station_list, time_between_customers, typ):
+    def __init__(self, station_list, time_between_customers, type):
+        Thread.__init__(self)
         self.station_list = station_list
         self.time_between_customers = time_between_customers
-        self.type = typ
+        self.type = type
         self.count = 1
 
     def begin(self, args):
+        # KundIn-Threads start at the beginning of shopping
+        #self.start()
+
         print(str(self) + " begin at " + str(EL.simulation_time))
         # instantiate next Customer (copy of current customer)
         next_customer = deepcopy(self)
@@ -48,6 +53,10 @@ class KundIn:
     def leave(self, args):
         station = self.station_list.pop(0)
         print(str(self) + " leave " + str(station[3]) + " at " + str(EL.simulation_time))
+
+        # shopping between stations is simulated by putting the thread to sleep.
+        time.sleep(self.station_list[0][0])
+
         if len(self.station_list) <= 0:
             return
         # create event for arriving at next station
