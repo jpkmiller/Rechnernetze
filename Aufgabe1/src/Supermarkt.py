@@ -22,12 +22,13 @@ T2 = KundIn([
 ], 60, 'B')
 
 if __name__ == "__main__":
-    # station threads are started at the beginning of the simulation
-    #bakery.start()
-    #butcher.start()
-    #cheese.start()
-    #checkout.start()
+    # FIXME: station threads are started at the beginning of the simulation
+    # bakery.start()
+    # butcher.start()
+    # cheese.start()
+    # checkout.start()
 
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
     EL.start()
+

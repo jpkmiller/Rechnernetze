@@ -1,7 +1,8 @@
 from Aufgabe1.src.EventList import EventList as EL
-from threading import Thread
+from threading import Thread, Lock, Event
 import time
 
+lock = Lock()
 
 class Station(Thread):
 
@@ -11,6 +12,13 @@ class Station(Thread):
         self.time = __time__
         self.customer_queue = []
 
+        self.isOperate = False
+        self.arrEv = Event()
+
+    def run(self):
+        # TODO: implement run method
+        return
+
     def queue(self, customer):
         self.customer_queue.append(customer)
         # if queue is empty, customer will get served right away.
@@ -19,9 +27,9 @@ class Station(Thread):
         return
 
     def serve(self, args):
-        # the time it takes to service a customer is simulated by the station
-        # thread going to sleep for the duration of the service.
-        time.sleep(self.time)
+        # FIXME: the time it takes to service a customer is simulated by the station thread going to sleep for the
+        #  duration of the service. time.sleep(self.time)
+        # time.sleep(self.time)
 
         if len(self.customer_queue) <= 0:
             return

@@ -12,9 +12,13 @@ class KundIn(Thread):
         self.type = type
         self.count = 1
 
+    def run(self):
+        # TODO: implement run method
+        return
+
     def begin(self, args):
-        # KundIn-Threads start at the beginning of shopping
-        #self.start()
+        # FIXME: KundIn thread start at the beginning of shopping at this point ???
+        # self.start()
 
         print(str(self) + " begin at " + str(EL.simulation_time))
         # instantiate next Customer (copy of current customer)
@@ -54,8 +58,8 @@ class KundIn(Thread):
         station = self.station_list.pop(0)
         print(str(self) + " leave " + str(station[3]) + " at " + str(EL.simulation_time))
 
-        # shopping between stations is simulated by putting the thread to sleep.
-        time.sleep(self.station_list[0][0])
+        # FIXME: shopping between stations is simulated by putting the thread to sleep here ???
+        # time.sleep(self.station_list[0][0])
 
         if len(self.station_list) <= 0:
             return
