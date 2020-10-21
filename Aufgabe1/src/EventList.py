@@ -26,7 +26,7 @@ class EventList:
 
     @staticmethod
     def start():
-        while len(EventList.event_queue) > 0 and EventList.event_number < 10000:
+        while len(EventList.event_queue) > 0 and EventList.event_number < 1000:
             e = EventList.pop()
             L.simulation_time = e.eTime
             e.eFun(e.eArgs)

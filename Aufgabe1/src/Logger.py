@@ -1,5 +1,4 @@
 class Logger:
-
     # current time of simulation
     simulation_time = 0
     customers = 0
@@ -7,6 +6,7 @@ class Logger:
     shopping_time = 0
     full_purchase_customers = 0
     full_purchase_shopping_time = 0
+    station_list = []
 
     @staticmethod
     def log(filepath):
@@ -24,6 +24,12 @@ class Logger:
         file.write("Anzahl vollständige Einkäufe: " + str(Logger.full_purchase_customers) + "\n")
         file.write("Mittlere Einkaufsdauer: " + str(Logger.get_shopping_time()) + "\n")
         file.write("Mittlere Einkaufsdauer (vollständig): " + str(Logger.get_full_purchase_shopping_time()) + "\n")
+        for station in Logger.station_list:
+            file.write(station().name + " ausgelassen: " + str(Logger.get_drop_percentage(station())) + "\n")
+
+    @staticmethod
+    def add_station_list(station_list):
+        Logger.station_list = station_list
 
     @staticmethod
     def add_customer(customer):
@@ -48,3 +54,7 @@ class Logger:
     @staticmethod
     def get_shopping_time():
         return Logger.shopping_time / Logger.customers
+
+    @staticmethod
+    def get_drop_percentage(station):
+        return (station.get_skipped_customer() / station.get_customer()) * 100

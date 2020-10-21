@@ -7,19 +7,36 @@ class Station:
     def __init__(self, name, __time__=30):
         self.name = name
         self.time = __time__
-        self.customer_queue = []
+
+        self.__customer_queue__ = []
+        self.__amount_customer__ = 0
+        self.__amount_skipped_customer__ = 0
+
+    def add_customer(self):
+        self.__amount_customer__ += 1
+
+    def add_skipped(self):
+        self.__amount_skipped_customer__ += 1
+
+    def get_customer_queue(self):
+        return self.__customer_queue__
+
+    def get_customer(self):
+        return self.__amount_customer__
+
+    def get_skipped_customer(self):
+        return self.__amount_skipped_customer__
 
     def queue(self, customer):
-        self.customer_queue.append(customer)
+        self.__customer_queue__.append(customer)
         # if queue is empty, customer will get served right away.
-        if len(self.customer_queue) <= 1:
-            self.serve([])
-        return
+        self.serve([])
 
     def serve(self, args):
-        if len(self.customer_queue) <= 0:
+        if len(self.get_customer_queue()) <= 0:
             return
-        customer = self.customer_queue.pop(0)
+
+        customer = self.__customer_queue__.pop(0)
         leave_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                                eNum=EL.next(), eFun=customer.leave, eArgs=[])
         serve_next_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,

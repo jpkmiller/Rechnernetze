@@ -1,7 +1,7 @@
 from Aufgabe1.src.EventList import EventList as EL
 from Aufgabe1.src.Logger import Logger as L
+from Aufgabe1.src.Station import Station
 from copy import deepcopy
-from collections import namedtuple
 
 
 class KundIn:
@@ -49,27 +49,42 @@ class KundIn:
 
     def arrive(self, args):
 
-        station = self.station_list[0]
-        print(str(self) + " arrive " + str(station[3]) + " at " + str(L.simulation_time))
+        station_tuple = self.station_list[0]
+        station_instance: Station = station_tuple[3]()
 
-        self.add_shopping_time(station[0])
+        # logging
+        print(str(self) + " arrive " + str(station_instance) + " at " + str(L.simulation_time))
 
-        if len(station[3].customer_queue) < station[1]:
-            station[3].queue(self)
+        self.add_shopping_time(station_tuple[0])
+        station_instance.add_customer()
+
+        if len(station_instance.get_customer_queue()) < station_tuple[1]:
+            # logging
+            print(str(self) + " waiting " + str(station_instance) + " at " + str(L.simulation_time))
+
+            station_instance.queue(self)
         else:
-            print(str(self) + " skipped " + str(station[3]) + " at " + str(L.simulation_time))
+            # logging
+            print(str(self) + " skipped " + str(station_instance) + " at " + str(L.simulation_time))
+
+            # skipping station when number of customers in queue exceeds maximum tolerance
             self.skipped_station = True
+            station_instance.add_skipped()
             self.station_list.pop(0)
 
-            arrive_event = EL.Event(eTime=L.simulation_time + station[0], ePrio=3,
+            arrive_event = EL.Event(eTime=L.simulation_time + station_tuple[0], ePrio=3,
                                     eNum=EL.next(), eFun=self.arrive, eArgs=[])
             EL.push(arrive_event)
 
     def leave(self, args):
-        station = self.station_list.pop(0)
+        if len(self.station_list) < 1:
+            return
+
+        station_tuple = self.station_list.pop(0)
+        station_instance: Station = station_tuple[3]()
 
         # logging
-        print(str(self) + " leave " + str(station[3]) + " at " + str(L.simulation_time))
+        print(str(self) + " leave " + str(station_instance) + " at " + str(L.simulation_time))
 
         if len(self.station_list) <= 0:
             self.full_purchase = not self.skipped_station
