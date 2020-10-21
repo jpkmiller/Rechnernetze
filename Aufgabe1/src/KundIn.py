@@ -21,6 +21,8 @@ class KundIn:
     def begin(self, args):
         # logging
         print(str(self) + " begin at " + str(L.simulation_time))
+
+        # add customer to Logger
         L.add_customer(self)
 
         # instantiate next Customer (copy of current customer)

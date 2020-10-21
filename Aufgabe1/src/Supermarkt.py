@@ -31,6 +31,8 @@ class Supermarkt:
 
 T1 = KundIn([
     # (Zeit von A nach B, max. Schlange, Anz. Einkäufe)
+    # passing method references
+    # "references" are passed as values!!
     (10, 10, 10, Supermarkt.get_bakery),
     (30, 10, 5, Supermarkt.get_butcher),
     (45, 5, 3, Supermarkt.get_cheese),
@@ -49,5 +51,6 @@ if __name__ == "__main__":
     EL.start()
 
     # logging
+    # passing references here too
     L.add_station_list([Supermarkt.get_bakery, Supermarkt.get_butcher, Supermarkt.get_cheese, Supermarkt.get_checkout])
     L.log('supermarkt_self.txt')

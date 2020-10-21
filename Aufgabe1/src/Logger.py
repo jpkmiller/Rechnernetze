@@ -24,6 +24,8 @@ class Logger:
         file.write("Anzahl vollständige Einkäufe: " + str(Logger.full_purchase_customers) + "\n")
         file.write("Mittlere Einkaufsdauer: " + str(Logger.get_shopping_time()) + "\n")
         file.write("Mittlere Einkaufsdauer (vollständig): " + str(Logger.get_full_purchase_shopping_time()) + "\n")
+
+        # logging stations
         for station in Logger.station_list:
             file.write(station().name + " ausgelassen: " + str(Logger.get_drop_percentage(station())) + "\n")
 
