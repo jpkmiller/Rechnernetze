@@ -1,15 +1,15 @@
 from Aufgabe1.src.EventList import EventList as EL
 from copy import deepcopy
 from threading import Thread
-import time
+
 
 class KundIn(Thread):
 
-    def __init__(self, station_list, time_between_customers, type):
+    def __init__(self, station_list, time_between_customers, typ):
         Thread.__init__(self)
         self.station_list = station_list
         self.time_between_customers = time_between_customers
-        self.type = type
+        self.type = typ
         self.count = 1
 
     def run(self):
