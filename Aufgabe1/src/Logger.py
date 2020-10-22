@@ -27,7 +27,7 @@ class Logger:
 
         # logging stations
         for station in Logger.station_list:
-            file.write(station().name + " ausgelassen: " + str(Logger.get_drop_percentage(station())) + "\n")
+            file.write(station.name + " ausgelassen: " + str(Logger.get_drop_percentage(station)) + "\n")
 
     @staticmethod
     def add_station_list(station_list):
@@ -59,4 +59,4 @@ class Logger:
 
     @staticmethod
     def get_drop_percentage(station):
-        return (station.get_skipped_customer() / station.get_customer()) * 100
+        return (station.get_skipped_customer() / station.get_amount_customer()) * 100

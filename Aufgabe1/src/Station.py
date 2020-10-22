@@ -21,7 +21,7 @@ class Station:
     def get_customer_queue(self):
         return self.__customer_queue__
 
-    def get_customer(self):
+    def get_amount_customer(self):
         return self.__amount_customer__
 
     def get_skipped_customer(self):
@@ -44,5 +44,5 @@ class Station:
         EL.push(leave_event)
         EL.push(serve_next_event)
 
-    #def __repr__(self):
-    #    return self.name
+    def __repr__(self):
+        return self.name
