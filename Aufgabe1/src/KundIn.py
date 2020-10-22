@@ -56,7 +56,6 @@ class KundIn:
         print(str(self) + " arrive " + str(station) + " at " + str(L.simulation_time))
 
         self.add_shopping_time(station_tuple[0])
-        station.add_customer()
 
         if len(station.get_customer_queue()) < station_tuple[1]:
             station.queue(self)

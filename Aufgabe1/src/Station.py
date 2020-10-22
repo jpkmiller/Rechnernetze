@@ -29,11 +29,14 @@ class Station:
 
     def queue(self, customer):
         self.__customer_queue__.append(customer)
+        self.add_customer()
+
         # if queue is empty, customer will get served right away.
-        self.serve([])
+        if len(self.__customer_queue__) <= 1:
+            self.serve([])
 
     def serve(self, args):
-        if len(self.get_customer_queue()) <= 0:
+        if len(self.__customer_queue__) <= 0:
             return
 
         customer = self.__customer_queue__.pop(0)
@@ -44,5 +47,5 @@ class Station:
         EL.push(leave_event)
         EL.push(serve_next_event)
 
-    def __repr__(self):
-        return self.name
+    #def __repr__(self):
+    #    return self.name
