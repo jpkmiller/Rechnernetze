@@ -25,8 +25,8 @@ class EventList:
         heapq.heappush(EventList.event_queue, event)
 
     @staticmethod
-    def start():
-        while len(EventList.event_queue) > 0 and EventList.event_number < 1000:
+    def start(condition):
+        while len(EventList.event_queue) > 0 and condition():
             e = EventList.pop()
             L.simulation_time = e.eTime
             e.eFun(e.eArgs)

@@ -19,7 +19,7 @@ class Logger:
                 Logger.add_full_purchase_customer()
                 Logger.add_full_purchase_shopping_time(time_shopping)
 
-        file = open(filepath, "w")
+        file = open(file=filepath, mode="w", encoding='UTF-8')
         file.write("Simulationsdauer: " + str(Logger.simulation_time) + "\n")
         file.write("Anzahl Kunden: " + str(Logger.customers) + "\n")
         file.write("Anzahl vollständige Einkäufe: " + str(Logger.full_purchase_customers) + "\n")
@@ -28,7 +28,7 @@ class Logger:
 
         # logging stations
         for station in Logger.station_list:
-            file.write(station.name + " ausgelassen: " + str(Logger.get_drop_percentage(station)) + "\n")
+            file.write(station.name + " ausgelassen: " + str(Logger.get_drop_percentage(station)) + "%\n")
 
     @staticmethod
     def add_station_list(station_list):

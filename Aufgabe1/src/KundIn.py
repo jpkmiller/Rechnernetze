@@ -49,11 +49,11 @@ class KundIn:
         station = station_tuple[3]
 
         if len(station.get_customer_queue()) < station_tuple[1]:
-            print(str(L.simulation_time) + ":" + str(self) + " Queueing at " + str(station), file=open("supermarkt_customer.txt", "a"))
+            print(str(L.simulation_time) + ":" + str(self) + " Queueing at " + str(station), file=open(file="supermarkt_customer.txt", mode="a", encoding="UTF-8"))
             station.queue(self)
         else:
             # logging
-            print(str(L.simulation_time) + ":" + str(self) + " Dropped at " + str(station), file=open("supermarkt_customer.txt", "a"))
+            print(str(L.simulation_time) + ":" + str(self) + " Dropped at " + str(station), file=open(file="supermarkt_customer.txt", mode="a", encoding="UTF-8"))
 
             # skipping station when number of customers in queue exceeds maximum tolerance
             self.skipped_station = True
@@ -73,11 +73,10 @@ class KundIn:
         station = station_tuple[3]
 
         # logging
-        print(str(L.simulation_time) + ":" + str(self) + " Finished at " + str(station), file=open("supermarkt_customer.txt", "a"))
+        print(str(L.simulation_time) + ":" + str(self) + " Finished at " + str(station), file=open(file="supermarkt_customer.txt", mode="a", encoding="UTF-8"))
 
         if len(self.station_list) <= 0:
             self.full_purchase = not self.skipped_station
-            self.time_end = L.simulation_time
             return
 
         # create event for arriving at next station

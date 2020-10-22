@@ -1,5 +1,5 @@
 from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.Logger import Logger as L
+from Aufgabe1.src.Logger import Logger as L, Logger
 from Aufgabe1.src.KundIn import KundIn
 from Aufgabe1.src.Station import Station
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
-    EL.start()
+    EL.start(lambda: Logger.simulation_time < 5040)
 
     # logging
     # passing references here too
