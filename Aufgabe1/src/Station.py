@@ -27,5 +27,5 @@ class Station:
         EL.push(leave_event)
         EL.push(serve_next_event)
 
-    def __repr__(self):
-        return self.name
+    #def __repr__(self):
+    #    return self.name

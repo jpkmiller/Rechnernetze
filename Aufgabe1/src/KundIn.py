@@ -24,7 +24,9 @@ class KundIn:
         L.add_customer(self)
 
         # instantiate next Customer (copy of current customer)
-        next_customer = deepcopy(self)
+
+        next_customer_station_list = self.station_list.copy()
+        next_customer = KundIn(next_customer_station_list, self.time_between_customers, self.type)
         next_customer.count = next_customer.count + 1
 
         # create begin event for next customer (next customer of same type gets announced)
@@ -66,6 +68,8 @@ class KundIn:
             EL.push(arrive_event)
 
     def leave(self, args):
+        if len(self.station_list) <= 0:
+            return
         station = self.station_list.pop(0)
 
         # logging
