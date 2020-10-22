@@ -13,10 +13,11 @@ class Logger:
 
         for customer in Logger.customer_list:
             Logger.customers += 1
-            Logger.add_shopping_time(customer.time_shopping)
+            time_shopping = customer.time_end - customer.time_begin
+            Logger.add_shopping_time(time_shopping)
             if customer.full_purchase:
                 Logger.add_full_purchase_customer()
-                Logger.add_full_purchase_shopping_time(customer.time_shopping)
+                Logger.add_full_purchase_shopping_time(time_shopping)
 
         file = open(filepath, "w")
         file.write("Simulationsdauer: " + str(Logger.simulation_time) + "\n")
@@ -59,4 +60,4 @@ class Logger:
 
     @staticmethod
     def get_drop_percentage(station):
-        return (station.get_skipped_customer() / station.get_amount_customer()) * 100
+        return (station.get_amount_skipped_customer() / (station.get_amount_customer() + station.get_amount_skipped_customer())) * 100

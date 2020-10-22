@@ -11,15 +11,11 @@ class KundIn:
         self.count = 1
         self.full_purchase = False
         self.skipped_station = False
-        self.time_shopping = 0
 
-    def add_shopping_time(self, amount):
-        self.time_shopping += amount
+        self.time_begin = L.simulation_time
+        self.time_end = L.simulation_time
 
     def begin(self, args):
-        # logging
-        print(str(self) + " begin at " + str(L.simulation_time))
-
         # add customer to Logger
         L.add_customer(self)
 
@@ -42,26 +38,22 @@ class KundIn:
                                 eNum=EL.next(), eFun=self.arrive,
                                 eArgs=[])
 
-        self.add_shopping_time(time_to_station)
-
         # push created events on heap
         EL.push(begin_event)
         EL.push(arrive_event)
         return
 
     def arrive(self, args):
-
+        self.time_end = L.simulation_time
         station_tuple = self.station_list[0]
         station = station_tuple[3]
-        print(str(self) + " arrive " + str(station) + " at " + str(L.simulation_time))
-
-        self.add_shopping_time(station_tuple[0])
 
         if len(station.get_customer_queue()) < station_tuple[1]:
+            print(str(L.simulation_time) + ":" + str(self) + " Queueing at " + str(station), file=open("supermarkt_customer.txt", "a"))
             station.queue(self)
         else:
             # logging
-            print(str(self) + " skipped " + str(station) + " at " + str(L.simulation_time))
+            print(str(L.simulation_time) + ":" + str(self) + " Dropped at " + str(station), file=open("supermarkt_customer.txt", "a"))
 
             # skipping station when number of customers in queue exceeds maximum tolerance
             self.skipped_station = True
@@ -73,6 +65,7 @@ class KundIn:
             EL.push(arrive_event)
 
     def leave(self, args):
+        self.time_end = L.simulation_time
         if len(self.station_list) <= 0:
             return
 
@@ -80,10 +73,11 @@ class KundIn:
         station = station_tuple[3]
 
         # logging
-        print(str(self) + " leave " + str(station) + " at " + str(L.simulation_time))
+        print(str(L.simulation_time) + ":" + str(self) + " Finished at " + str(station), file=open("supermarkt_customer.txt", "a"))
 
         if len(self.station_list) <= 0:
             self.full_purchase = not self.skipped_station
+            self.time_end = L.simulation_time
             return
 
         # create event for arriving at next station
@@ -92,4 +86,4 @@ class KundIn:
         EL.push(arrive_event)
 
     def __repr__(self):
-        return self.type + "-" + str(self.count)
+        return self.type + str(self.count)

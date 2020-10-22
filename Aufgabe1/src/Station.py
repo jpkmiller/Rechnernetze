@@ -24,7 +24,7 @@ class Station:
     def get_amount_customer(self):
         return self.__amount_customer__
 
-    def get_skipped_customer(self):
+    def get_amount_skipped_customer(self):
         return self.__amount_skipped_customer__
 
     def queue(self, customer):
@@ -39,13 +39,17 @@ class Station:
         if len(self.__customer_queue__) <= 0:
             return
 
-        customer = self.__customer_queue__.pop(0)
+        customer = self.__customer_queue__[0]
         leave_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                                eNum=EL.next(), eFun=customer.leave, eArgs=[])
         serve_next_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
-                                    eNum=EL.next(), eFun=self.serve, eArgs=[])
+                                    eNum=EL.next(), eFun=self.leave, eArgs=[])
         EL.push(leave_event)
         EL.push(serve_next_event)
 
-    #def __repr__(self):
-    #    return self.name
+    def leave(self, args):
+        self.__customer_queue__.pop(0)
+        self.serve([])
+
+    def __repr__(self):
+        return self.name

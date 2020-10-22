@@ -21,12 +21,15 @@ T1 = KundIn([
 ], 200, 'A')
 
 T2 = KundIn([
-    (30, 5, 2, bakery),
+    (30, 5, 2, butcher),
     (30, 20, 3, checkout),
     (20, 20, 3, bakery),
 ], 60, 'B')
 
 if __name__ == "__main__":
+    open("supermarkt.txt", "w").write("")
+    open("supermarkt_customer.txt", "w").write("")
+
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
     EL.start()
@@ -34,4 +37,4 @@ if __name__ == "__main__":
     # logging
     # passing references here too
     L.add_station_list([bakery, butcher, cheese, checkout])
-    L.log('supermarkt_self.txt')
+    L.log('supermarkt.txt')
