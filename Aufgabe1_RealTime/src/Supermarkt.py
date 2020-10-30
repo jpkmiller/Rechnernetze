@@ -1,6 +1,6 @@
-from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.KundIn import KundIn
-from Aufgabe1.src.Station import Station
+from Aufgabe1_RealTime.src.EventList import EventList as EL
+from Aufgabe1_RealTime.src.KundIn import KundIn
+from Aufgabe1_RealTime.src.Station import Station
 
 bakery = Station('Bäcker', 10)
 butcher = Station('Wursttheke', 30)
