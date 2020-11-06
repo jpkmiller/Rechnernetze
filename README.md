@@ -2,7 +2,7 @@
 
 # Aufgaben
 
-* [Einführungsaufgabe in Python](/Aufgabe1)
+* [Einführungsaufgabe in Python](/Aufgabe1_EventList)
 * [Wireshark](/Wireshark)
 * [Ping und Traceroute](/PingUndTraceroute)
 
