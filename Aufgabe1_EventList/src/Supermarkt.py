@@ -1,8 +1,7 @@
-from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.Logger import Logger as L, Logger
-from Aufgabe1.src.KundIn import KundIn
-from Aufgabe1.src.Station import Station
-
+from Aufgabe1_EventList.src.EventList import EventList as EL
+from Aufgabe1_EventList.src.Logger import Logger as L, Logger
+from Aufgabe1_EventList.src.KundIn import KundIn
+from Aufgabe1_EventList.src.Station import Station
 
 bakery = Station('Bäcker', 10)
 butcher = Station('Wursttheke', 30)
@@ -17,8 +16,8 @@ T1 = KundIn([
     (10, 10, 10, bakery),
     (30, 10, 5, butcher),
     (45, 5, 3, cheese),
-    (60, 20, 30, checkout),
-], 300, 'A')
+    (60, 20, 30 checkout),
+], 200, 'A')
 
 T2 = KundIn([
     (30, 5, 2, butcher),
