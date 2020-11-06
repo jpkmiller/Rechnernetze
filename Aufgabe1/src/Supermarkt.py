@@ -18,7 +18,7 @@ T1 = KundIn([
     (30, 10, 5, butcher),
     (45, 5, 3, cheese),
     (60, 20, 30, checkout),
-], 200, 'A')
+], 300, 'A')
 
 T2 = KundIn([
     (30, 5, 2, butcher),
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
-    EL.start(lambda: Logger.simulation_time < 5040)
+    EL.start(lambda: Logger.simulation_time < 3076)
 
     # logging
     # passing references here too
