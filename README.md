@@ -6,15 +6,15 @@
 * [Wireshark](/Wireshark)
 * [Ping und Traceroute](/PingUndTraceroute)
 
-### Links and Tools
+## Links and Tools
 
-#### Ping
+### Ping
 * ```ping <IP oder host>```
 
-#### ASN, Registrar
+### ASN, Registrar
 * https://www.ultratools.com/tools/asnInfo
 
-#### Traceroute
+### Traceroute
 * ```tracert <IP oder host>```
 * https://traceroute-online.com/ (empfohlen)
 * http://www.dnstools.ch/visual-traceroute.html
