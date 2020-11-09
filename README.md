@@ -5,6 +5,7 @@
 * [Einführungsaufgabe in Python](/Aufgabe1_EventList)
 * [Wireshark](/Wireshark)
 * [Ping und Traceroute](/PingUndTraceroute)
+* [Socket Monitoring](/SocketMonitoring)
 
 ## Links and Tools
 
@@ -38,3 +39,8 @@ Eine Regional Internet Registry ist zuständig für die Vergabe von IP Adressen.
 ![RIR Karte](/Ressourcen/RIR.jpg?raw=true)
 Quelle: https://www.nro.net/about/rirs/
 
+### Listening Port
+
+```
+Ports, die offen sind
+```
