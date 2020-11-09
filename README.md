@@ -22,6 +22,12 @@
 * https://centralops.net/co/
 * https://lg.he.net/
 
+### Socket Monitoring
+* https://www.nirsoft.net/utils/cports.html
+* https://www.nirsoft.net/utils/ipnetinfo.html
+
+### Portliste
+* https://de.wikipedia.org/wiki/Liste_der_standardisierten_Ports
 
 ## Wiki
 
