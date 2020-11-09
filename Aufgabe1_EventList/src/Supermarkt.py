@@ -16,7 +16,7 @@ T1 = KundIn([
     (10, 10, 10, bakery),
     (30, 10, 5, butcher),
     (45, 5, 3, cheese),
-    (60, 20, 30 checkout),
+    (60, 20, 30, checkout),
 ], 200, 'A')
 
 T2 = KundIn([
