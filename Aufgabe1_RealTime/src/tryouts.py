@@ -1,7 +1,7 @@
 # %% Testcell
 from collections import namedtuple
 
-from Aufgabe1_RealTime.src.EventList import EventList
+from Aufgabe1_EventList.src.EventList import EventList
 from Aufgabe1_RealTime.src.KundIn import KundIn
 
 eventList = EventList([])

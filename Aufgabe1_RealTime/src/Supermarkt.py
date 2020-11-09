@@ -1,4 +1,4 @@
-from Aufgabe1_RealTime.src.EventList import EventList as EL
+from Aufgabe1_EventList.src.EventList import EventList as EL
 from Aufgabe1_RealTime.src.KundIn import KundIn
 from Aufgabe1_RealTime.src.Station import Station
 

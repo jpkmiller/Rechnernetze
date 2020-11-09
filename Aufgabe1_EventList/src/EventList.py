@@ -1,6 +1,6 @@
 import heapq
 from collections import namedtuple
-from Aufgabe1.src.Logger import Logger as L
+from Aufgabe1_EventList.src.Logger import Logger as L
 
 
 class EventList:
