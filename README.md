@@ -5,6 +5,7 @@
 * [Einführungsaufgabe in Python](/Aufgabe1_EventList)
 * [Wireshark](/Wireshark)
 * [Ping und Traceroute](/PingUndTraceroute)
+* [Socket Monitoring](/SocketMonitoring)
 
 ## Links and Tools
 
