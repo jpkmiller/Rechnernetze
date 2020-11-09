@@ -38,3 +38,8 @@ Eine Regional Internet Registry ist zuständig für die Vergabe von IP Adressen.
 ![RIR Karte](/Ressourcen/RIR.jpg?raw=true)
 Quelle: https://www.nro.net/about/rirs/
 
+### Listening Port
+
+```
+Ports, die offen sind
+```
