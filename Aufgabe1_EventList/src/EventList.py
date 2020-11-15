@@ -1,12 +1,12 @@
 import heapq
 from collections import namedtuple
+from Aufgabe1.src.Logger import Logger as L
 
 
 class EventList:
     event_queue = []
     event_number = 0
     heapq.heapify(event_queue)
-    simulation_time = 0
     Event = namedtuple(typename='event', field_names=['eTime', 'ePrio', 'eNum', 'eFun', 'eArgs'], rename=False)
 
     @staticmethod
@@ -25,8 +25,8 @@ class EventList:
         heapq.heappush(EventList.event_queue, event)
 
     @staticmethod
-    def start():
-        while len(EventList.event_queue) > 0 and EventList.event_number < 50:
+    def start(condition):
+        while len(EventList.event_queue) > 0 and condition():
             e = EventList.pop()
-            EventList.simulation_time = e.eTime
+            L.simulation_time = e.eTime
             e.eFun(e.eArgs)
