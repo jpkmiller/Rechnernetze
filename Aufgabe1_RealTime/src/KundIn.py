@@ -1,4 +1,4 @@
-from Aufgabe1.src.EventList import EventList as EL
+from Aufgabe1_RealTime.src.EventList import EventList as EL
 from copy import deepcopy
 from threading import Thread
 
