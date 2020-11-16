@@ -1,10 +1,9 @@
-from Aufgabe1_RealTime.src.EventList import EventList as EL
-from threading import Thread, Lock
-
-lock = Lock()
+from threading import Thread, Event
+import time
 
 
 class Station(Thread):
+    start_serve_event = Event()
 
     def __init__(self, name, __time__=30):
         Thread.__init__(self)
@@ -13,30 +12,46 @@ class Station(Thread):
         self.customer_queue = []
 
     def run(self):
-        # TODO: implement run method
-        return
+        # TODO: when to terminate?
+        while True:
+            # first wait for the first customer
+            self.wait_for_customer()
+            # then serve while queue is empty
+            # remember: serve is a recursive function!
+            self.serve([])
 
+    # just wait for somebody queues in
+    def wait_for_customer(self):
+        self.start_serve_event.wait()
+        self.start_serve_event.clear()
+
+    # this is the method a customer calls.
     def queue(self, customer):
+        # enqueue customer
         self.customer_queue.append(customer)
         # if queue is empty, customer will get served right away.
         if len(self.customer_queue) <= 1:
-            self.serve([])
+            if not self.start_serve_event.is_set():
+                # just wake the station and it will start serving
+                self.start_serve_event.set()
         return
 
+    # recursively serve all customer queued. Returns if queue is empty
     def serve(self, args):
-        # FIXME: the time it takes to service a customer is simulated by the station thread going to sleep for the
-        #  duration of the service. time.sleep(self.time)
-        # time.sleep(self.time)
-
+        # just a safety check.
         if len(self.customer_queue) <= 0:
             return
+
+        # sleep represents the serving
+        time.sleep(self.time)
+        # after serving wake the customer
         customer = self.customer_queue.pop(0)
-        leave_event = EL.Event(eTime=EL.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
-                               eNum=EL.next(), eFun=customer.leave, eArgs=[])
-        serve_next_event = EL.Event(eTime=EL.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
-                                    eNum=EL.next(), eFun=self.serve, eArgs=[])
-        EL.push(leave_event)
-        EL.push(serve_next_event)
+        # to be implemented:
+        # customer.finished_serve_event.set()
+
+        # if there still are customer queued, serve the next one
+        if len(self.customer_queue) > 0:
+            self.serve([])
 
     def __repr__(self):
         return self.name
