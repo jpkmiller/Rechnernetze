@@ -3,13 +3,12 @@ import time
 
 
 class Station(Thread):
-    start_serve_event = Event()
-
     def __init__(self, name, __time__=30):
         Thread.__init__(self)
         self.name = name
-        self.time = __time__
+        self.serving_time = __time__
         self.customer_queue = []
+        self.start_serve_event = Event()
 
     def run(self):
         # TODO: when to terminate?
@@ -27,13 +26,14 @@ class Station(Thread):
 
     # this is the method a customer calls.
     def queue(self, customer):
+        print(str(customer) + " waits at station " + str(self))
         # enqueue customer
         self.customer_queue.append(customer)
         # if queue is empty, customer will get served right away.
         if len(self.customer_queue) <= 1:
-            if not self.start_serve_event.is_set():
+            # if not self.start_serve_event.is_set():
                 # just wake the station and it will start serving
-                self.start_serve_event.set()
+            self.start_serve_event.set()
         return
 
     # recursively serve all customer queued. Returns if queue is empty
@@ -42,12 +42,16 @@ class Station(Thread):
         if len(self.customer_queue) <= 0:
             return
 
+        # get the next customer, but do not dequeue it.
+        customer = self.customer_queue[0]
+        print("start serving " + str(customer))
         # sleep represents the serving
-        time.sleep(self.time)
+        time.sleep(self.serving_time * customer.station_list[0][2])
+        # dequeue customer
+        self.customer_queue.pop(0)
         # after serving wake the customer
-        customer = self.customer_queue.pop(0)
-        # to be implemented:
-        # customer.finished_serve_event.set()
+        print("finished serving " + str(customer) + " try to wake")
+        customer.finished_serve_event.set()
 
         # if there still are customer queued, serve the next one
         if len(self.customer_queue) > 0:
