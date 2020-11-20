@@ -1,3 +1,4 @@
+from Aufgabe1_RealTime.src import GLOBAL_VALUES
 from Aufgabe1_RealTime.src.EventList import EventList as EL
 from copy import deepcopy
 from threading import Thread, Event
@@ -5,12 +6,14 @@ import time
 
 
 class KundIn(Thread):
-    def __init__(self, station_list, time_between_customers, typ):
+    output_file = open("supermarket_customer.txt", mode="w", encoding="UTF-8")
+
+    def __init__(self, station_list, time_between_customers, typ, count):
         Thread.__init__(self)
         self.station_list = station_list
         self.time_between_customers = time_between_customers
         self.type = typ
-        self.count = 1
+        self.count = count
         self.finished_serve_event = Event()
 
     def run(self):
@@ -28,23 +31,28 @@ class KundIn(Thread):
     def arrive(self, args):
         # get the next station
         station = self.station_list[0]
-        print(str(self) + " arrive " + str(station[3]) + " at " + str(EL.simulation_time))
 
         # check if stations queue is too long for costumer
-        if len(station[3].customer_queue) < station[1]:
+        if len(station[3].customer_queue) <= station[1]:
             # if not enqueue
+            print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+                self) + " Queueing at " + station[3].name, file=KundIn.output_file)
             station[3].queue(self)
             # wait until station has served this customer
             self.finished_serve_event.wait()
+            print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+                self) + " Finished at " + station[3].name, file=KundIn.output_file)
             # clear the event
             self.finished_serve_event.clear()
+        else:
+            print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+                self) + " Dropped at " + station[3].name, file=KundIn.output_file)
         # leave current station
         self.leave([])
 
     def leave(self, args):
         # station is done. Remove it from station list
         station = self.station_list.pop(0)
-        print(str(self) + " leave " + str(station[3]) + " at " + str(EL.simulation_time))
 
         # station list is empty -> purchase completed
         if len(self.station_list) <= 0:
@@ -56,4 +64,4 @@ class KundIn(Thread):
         self.arrive([])
 
     def __repr__(self):
-        return "K" + self.type + "-" + str(self.count)
+        return self.type + str(self.count)

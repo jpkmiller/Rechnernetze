@@ -1,8 +1,12 @@
 from threading import Thread, Event, Lock
 import time
 
+from Aufgabe1_RealTime.src import GLOBAL_VALUES
+
 
 class Station(Thread):
+    output_file = open("supermarket_station.txt", mode="w", encoding="UTF-8")
+
     def __init__(self, name, __time__=30):
         Thread.__init__(self)
         self.name = name
@@ -27,14 +31,15 @@ class Station(Thread):
 
     # this is the method a customer calls.
     def queue(self, customer):
-        print(str(customer) + " waits at station " + str(self))
+        print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+            self) + " adding customer " + str(customer), file=Station.output_file)
         # enqueue customer
         self.lock.acquire()
         self.customer_queue.append(customer)
         # if queue is empty, customer will get served right away.
         if len(self.customer_queue) <= 1:
             # if not self.start_serve_event.is_set():
-                # just wake the station and it will start serving
+            # just wake the station and it will start serving
             self.start_serve_event.set()
         self.lock.release()
         return
@@ -49,14 +54,16 @@ class Station(Thread):
         # get the next customer, but do not dequeue it.
         customer = self.customer_queue[0]
         self.lock.release()
-        print("start serving " + str(customer))
+        print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+            self) + " serving customer " + str(customer), file=Station.output_file)
         # sleep represents the serving
         time.sleep(self.serving_time * customer.station_list[0][2])
         # dequeue customer
+        print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
+            self) + " finished customer " + str(customer), file=Station.output_file)
         self.lock.acquire()
         self.customer_queue.pop(0)
         # after serving wake the customer
-        print("finished serving " + str(customer) + " try to wake")
         customer.finished_serve_event.set()
 
         # if there still are customer queued, serve the next one
@@ -66,6 +73,6 @@ class Station(Thread):
             self.serve([])
         else:
             self.lock.release()
-            
+
     def __repr__(self):
         return self.name
