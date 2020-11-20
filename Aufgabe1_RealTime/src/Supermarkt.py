@@ -4,14 +4,15 @@ from Aufgabe1_RealTime.src.KundIn import KundIn
 from Aufgabe1_RealTime.src.Station import Station
 import time
 
-FACTOR = 0.1
+FACTOR = 0.001
 bakery = Station('Bäcker', 10 * FACTOR)
 butcher = Station('Wursttheke', 30 * FACTOR)
 cheese = Station('Cheese', 60 * FACTOR)
 checkout = Station('Kasse', 5 * FACTOR)
 
 start_time = 0
-
+typ_a_customers = []
+typ_b_customers = []
 
 def type_a_generator():
     print("a started")
@@ -25,9 +26,10 @@ def type_a_generator():
         ], 200 * FACTOR, 'A')
         T1.start()
         if time.time() + 200 * FACTOR - start_time > 30 * 60 * FACTOR:
+            for customers in typ_a_customers:
+                customers.join()
             return
         time.sleep(200 * FACTOR)
-
 
 def type_b_generator():
     print("b started")
@@ -37,8 +39,11 @@ def type_b_generator():
             (30 * FACTOR, 20, 3, checkout),
             (20 * FACTOR, 20, 3, bakery),
         ], 60 * FACTOR, 'B')
+        typ_b_customers.append(T2)
         T2.start()
         if time.time() + 60 * FACTOR - start_time > 30 * 60 * FACTOR:
+            for customers in typ_b_customers:
+                customers.join()
             return
         time.sleep(60 * FACTOR)
 
@@ -56,6 +61,22 @@ if __name__ == "__main__":
     thread_b.start()
     thread_a.join()
     thread_b.join()
+
+    bakery.keep_running = False
+    bakery.start_serve_event.set()
+    butcher.keep_running = False
+    butcher.start_serve_event.set()
+    cheese.keep_running = False
+    cheese.start_serve_event.set()
+    checkout.keep_running = False
+    checkout.start_serve_event.set()
+
+    bakery.join()
+    butcher.join()
+    cheese.join()
+    checkout.join()
+
+    print("simulation finished. \n took: %f", (time.time() - start_time) / FACTOR)
 
     # EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     # EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
