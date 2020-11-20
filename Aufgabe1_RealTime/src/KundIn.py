@@ -1,5 +1,5 @@
 from Aufgabe1_RealTime.src import GLOBAL_VALUES
-from Aufgabe1_RealTime.src.EventList import EventList as EL
+from Aufgabe1_RealTime.src.Logger import Logger as L
 from copy import deepcopy
 from threading import Thread, Event
 import time
@@ -10,11 +10,20 @@ class KundIn(Thread):
 
     def __init__(self, station_list, time_between_customers, typ, count):
         Thread.__init__(self)
+        self.time_begin = time.time()
+        self.time_end = self.time_begin
+
         self.station_list = station_list
         self.time_between_customers = time_between_customers
         self.type = typ
         self.count = count
         self.finished_serve_event = Event()
+
+        self.full_purchase = False
+        self.skipped_station = False
+
+        self.time_sleep_start = 0
+        self.time_sleep_end = 0
 
     def run(self):
         # customer enters the system
@@ -47,15 +56,19 @@ class KundIn(Thread):
         else:
             print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
                 self) + " Dropped at " + station[3].name, file=KundIn.output_file)
+            self.skipped_station = True
+            station[3].add_skipped()
         # leave current station
         self.leave([])
 
     def leave(self, args):
         # station is done. Remove it from station list
-        station = self.station_list.pop(0)
+        self.station_list.pop(0)
 
         # station list is empty -> purchase completed
         if len(self.station_list) <= 0:
+            self.full_purchase = not self.skipped_station
+            self.time_end = time.time()
             return
 
         # wait until next station is reached

@@ -16,6 +16,11 @@ class Station(Thread):
         self.keep_running = True
         self.lock = Lock()
 
+        # statistics
+        self.amount_skipped = 0
+        self.amount_customers = 0
+
+
     def run(self):
         while self.keep_running:
             # first wait for the first customer
@@ -23,6 +28,18 @@ class Station(Thread):
             # then serve while queue is empty
             # remember: serve is a recursive function!
             self.serve([])
+
+    def add_skipped(self):
+        self.amount_skipped += 1
+
+    def add_customer(self):
+        self.amount_customers += 1
+
+    def get_amount_customers(self):
+        return self.amount_customers
+
+    def get_amount_skipped_customers(self):
+        return self.amount_skipped
 
     # just wait for somebody queues in
     def wait_for_customer(self):
@@ -34,6 +51,7 @@ class Station(Thread):
         print(str(round((time.time() - GLOBAL_VALUES.start_time) / GLOBAL_VALUES.FACTOR)) + ":" + str(
             self) + " adding customer " + str(customer), file=Station.output_file)
         # enqueue customer
+        self.add_customer()
         self.lock.acquire()
         self.customer_queue.append(customer)
         # if queue is empty, customer will get served right away.
