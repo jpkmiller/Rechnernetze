@@ -4,8 +4,8 @@ from Aufgabe1_EventList.src.KundIn import KundIn
 from Aufgabe1_EventList.src.Station import Station
 
 bakery = Station('Bäcker', 10)
-butcher = Station('Wursttheke', 30)
-cheese = Station('Cheese', 60)
+butcher = Station('Metzger', 30)
+cheese = Station('Käse', 60)
 checkout = Station('Kasse', 5)
 
 

@@ -1,9 +1,9 @@
 Simulationsdauer: 3076
-Anzahl Kunden: 63
-Anzahl vollständige Einkäufe: 34
-Mittlere Einkaufsdauer: 528.2063492063492
-Mittlere Einkaufsdauer (vollständig): 722.1470588235294
+Anzahl Kunden: 68
+Anzahl vollständige Einkäufe: 28
+Mittlere Einkaufsdauer: 571.9411764705883
+Mittlere Einkaufsdauer (vollständig): 876.5357142857143
 Bäcker ausgelassen: 0.0%
-Wursttheke ausgelassen: 32.78688524590164%
-Cheese ausgelassen: 0.0%
+Metzger ausgelassen: 40.909090909090914%
+Käse ausgelassen: 0.0%
 Kasse ausgelassen: 0.0%
