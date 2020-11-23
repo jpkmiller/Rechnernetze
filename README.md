@@ -2,10 +2,14 @@
 
 ## Aufgaben
 
+### Praxis
 * [Einführungsaufgabe in Python](/Aufgabe1_EventList)
 * [Wireshark](/Wireshark)
 * [Ping und Traceroute](/PingUndTraceroute)
 * [Socket Monitoring](/SocketMonitoring)
+
+### Theorie
+* [End2End Verzögerung](/E2EVerzoegerung)
 
 ## Links and Tools
 
