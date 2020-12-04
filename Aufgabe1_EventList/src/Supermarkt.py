@@ -1,12 +1,11 @@
-from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.Logger import Logger as L, Logger
-from Aufgabe1.src.KundIn import KundIn
-from Aufgabe1.src.Station import Station
-
+from Aufgabe1_EventList.src.EventList import EventList as EL
+from Aufgabe1_EventList.src.Logger import Logger as L, Logger
+from Aufgabe1_EventList.src.KundIn import KundIn
+from Aufgabe1_EventList.src.Station import Station
 
 bakery = Station('Bäcker', 10)
-butcher = Station('Wursttheke', 30)
-cheese = Station('Cheese', 60)
+butcher = Station('Metzger', 30)
+cheese = Station('Käse', 60)
 checkout = Station('Kasse', 5)
 
 
@@ -32,7 +31,7 @@ if __name__ == "__main__":
 
     EL.push(EL.Event(0, 2, EL.next(), T1.begin, []))
     EL.push(EL.Event(1, 2, EL.next(), T2.begin, []))
-    EL.start(lambda: Logger.simulation_time < 5040)
+    EL.start(lambda: Logger.simulation_time < 3076)
 
     # logging
     # passing references here too

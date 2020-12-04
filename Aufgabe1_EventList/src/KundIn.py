@@ -1,5 +1,5 @@
-from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.Logger import Logger as L
+from Aufgabe1_EventList.src.EventList import EventList as EL
+from Aufgabe1_EventList.src.Logger import Logger as L
 
 
 class KundIn:
@@ -48,7 +48,7 @@ class KundIn:
         station_tuple = self.station_list[0]
         station = station_tuple[3]
 
-        if len(station.get_customer_queue()) < station_tuple[1]:
+        if len(station.get_customer_queue()) <= station_tuple[1]:
             print(str(L.simulation_time) + ":" + str(self) + " Queueing at " + str(station), file=open(file="supermarkt_customer.txt", mode="a", encoding="UTF-8"))
             station.queue(self)
         else:

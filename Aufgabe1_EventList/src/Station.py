@@ -1,9 +1,9 @@
-from Aufgabe1.src.EventList import EventList as EL
-from Aufgabe1.src.Logger import Logger as L
+from Aufgabe1_EventList.src.EventList import EventList as EL
+from Aufgabe1_EventList.src.Logger import Logger as L
 
 
 class Station:
-
+    output_file = open(file="supermarkt_station.txt", mode="w", encoding="UTF-8")
     def __init__(self, name, __time__=30):
         self.name = name
         self.time = __time__
@@ -28,6 +28,8 @@ class Station:
         return self.__amount_skipped_customer__
 
     def queue(self, customer):
+        print(str(L.simulation_time) + ":" + str(self) + " adding customer " + str(customer),
+              file=Station.output_file)
         self.__customer_queue__.append(customer)
         self.add_customer()
 
@@ -38,8 +40,9 @@ class Station:
     def serve(self, args):
         if len(self.__customer_queue__) <= 0:
             return
-
         customer = self.__customer_queue__[0]
+        print(str(L.simulation_time) + ":" + str(self) + " serving customer " + str(customer),
+              file=Station.output_file)
         leave_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
                                eNum=EL.next(), eFun=customer.leave, eArgs=[])
         serve_next_event = EL.Event(eTime=L.simulation_time + customer.station_list[0][2] * self.time, ePrio=1,
@@ -48,7 +51,9 @@ class Station:
         EL.push(serve_next_event)
 
     def leave(self, args):
-        self.__customer_queue__.pop(0)
+        customer = self.__customer_queue__.pop(0)
+        print(str(L.simulation_time) + ":" + str(self) + " finished customer " + str(customer),
+              file=Station.output_file)
         self.serve([])
 
     def __repr__(self):

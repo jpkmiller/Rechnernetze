@@ -1,8 +1,10 @@
 /Beispiele
 /Folien
 /.idea
-/Aufgabe1_EventList/.idea/
+/Aufgabe1_RealTime/.idea/
+/Aufgabe1_EventList/.idea
 *.pyc
 *.docx
 *.xlsx
 *.pptx
+*.zip
