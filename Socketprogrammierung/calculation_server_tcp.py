@@ -7,8 +7,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("9.9.9.9", 80))
 VPN_IP = s.getsockname()[0]
 s.close()
-# My_IP = '127.0.0.1'
-My_IP = VPN_IP
+# My_IP = VPN_IP
+My_IP = '127.0.0.1'
 print(My_IP)
 My_PORT = 50000
 server_activity_period = 30

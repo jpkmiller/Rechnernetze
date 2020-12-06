@@ -5,13 +5,13 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.connect(("9.9.9.9", 80))
 VPN_IP = s.getsockname()[0]
 s.close()
-# Server_IP = '127.0.0.1'
 Server_IP = VPN_IP
+Server_IP = '127.0.0.1'
 print(Server_IP)
 Server_PORT = 50000
-MESSAGE = 'Hello, World!'
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.settimeout(10)
+
 
 def calculate(operator, operands):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,3 +42,6 @@ def close():
 def shutdown_server():
     sock.send('quit'.encode('utf-8'))
     sock.close()
+
+
+calculate('Summe', [1, 2, 3, 4, 5, 6, 7, 8, 9])
