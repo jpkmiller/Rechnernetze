@@ -1,5 +1,5 @@
-from Aufgabe1_EventList.src.EventList import EventList as EL
-from Aufgabe1_EventList.src.Logger import Logger as L
+from Praxis.Aufgabe1_EventList.src.EventList import EventList as EL
+from Praxis.Aufgabe1_EventList.src.Logger import Logger as L
 
 
 class Station:

@@ -1,9 +1,9 @@
 from threading import Thread
 
-from Aufgabe1_RealTime.src import GLOBAL_VALUES
-from Aufgabe1_RealTime.src.Logger import Logger as L
-from Aufgabe1_RealTime.src.KundIn import KundIn
-from Aufgabe1_RealTime.src.Station import Station
+from Praxis.Aufgabe1_RealTime.src import GLOBAL_VALUES
+from Praxis.Aufgabe1_RealTime.src.Logger import Logger as L
+from Praxis.Aufgabe1_RealTime.src.KundIn import KundIn
+from Praxis.Aufgabe1_RealTime.src.Station import Station
 import time
 
 bakery = Station('Bäcker', 10 * GLOBAL_VALUES.FACTOR)

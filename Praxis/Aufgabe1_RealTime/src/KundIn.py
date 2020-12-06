@@ -1,6 +1,4 @@
-from Aufgabe1_RealTime.src import GLOBAL_VALUES
-from Aufgabe1_RealTime.src.Logger import Logger as L
-from copy import deepcopy
+from Praxis.Aufgabe1_RealTime.src import GLOBAL_VALUES
 from threading import Thread, Event
 import time
 

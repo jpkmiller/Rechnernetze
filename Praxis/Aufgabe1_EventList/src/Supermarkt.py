@@ -1,7 +1,7 @@
-from Aufgabe1_EventList.src.EventList import EventList as EL
-from Aufgabe1_EventList.src.Logger import Logger as L, Logger
-from Aufgabe1_EventList.src.KundIn import KundIn
-from Aufgabe1_EventList.src.Station import Station
+from Praxis.Aufgabe1_EventList.src.EventList import EventList as EL
+from Praxis.Aufgabe1_EventList.src.Logger import Logger as L, Logger
+from Praxis.Aufgabe1_EventList.src.KundIn import KundIn
+from Praxis.Aufgabe1_EventList.src.Station import Station
 
 bakery = Station('Bäcker', 10)
 butcher = Station('Metzger', 30)

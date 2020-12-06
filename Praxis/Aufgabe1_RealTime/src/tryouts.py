@@ -1,29 +1,29 @@
 # %% Testcell
 from collections import namedtuple
 
-from Aufgabe1_EventList.src.EventList import EventList
-from Aufgabe1_EventList.src.KundIn import KundIn
+from Praxis.Aufgabe1_RealTime.src.EventList import EventList
+from Praxis.Aufgabe1_RealTime.src.KundIn import KundIn
 
 eventList = EventList([])
 event = namedtuple('e', 'eTime, ePrio, eNum, eFun, eArgs')
 counter = 0
 
-
 def begin(args: list):
     customer: KundIn = args[0]
     time: int = args[1]
     next_customer = KundIn(customer.stationList, customer.timeBetweenCustomers)
-    begin_event = event(eTime=time + customer.timeBetweenCustomers, ePrio=2, eNum=++counter, eFun=begin,
-                        eArgs=[next_customer])
+    begin_event = event(eTime=time+customer.timeBetweenCustomers, ePrio=2, eNum=++counter, eFun=begin, eArgs=[next_customer])
     station = customer.stationList[customer.station_index]
-    arrive_event = event(eTime=time + station[0], ePrio=3, eNum=++counter, eFun=arrive, eArgs=[])
+    arrive_event = event(eTime=time+station[0], ePrio=3, eNum=++counter, eFun=arrive, eArgs=[])
     eventList.push(begin_event)
     eventList.push(arrive_event)
     return
 
-
 def arrive():
+
     return
+
+
 
 
 def test(x: list):

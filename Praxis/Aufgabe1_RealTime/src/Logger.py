@@ -1,4 +1,4 @@
-from Aufgabe1_RealTime.src import GLOBAL_VALUES
+from Praxis.Aufgabe1_RealTime.src import GLOBAL_VALUES
 import threading
 import time
 

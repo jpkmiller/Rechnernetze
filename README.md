@@ -3,15 +3,15 @@
 ## Aufgaben
 
 ### Praxis
-* [Einführungsaufgabe in Python](/Aufgabe1_EventList)
-* [Wireshark](/Wireshark)
-* [Ping und Traceroute](/PingUndTraceroute)
-* [Socket Monitoring](/SocketMonitoring)
-* [Socket Programmierung](/Socketprogrammierung)
+* [Einführungsaufgabe in Python](/Praxis/Aufgabe1_EventList)
+* [Wireshark](/Praxis/Wireshark)
+* [Ping und Traceroute](/Praxis/PingUndTraceroute)
+* [Socket Monitoring](/Praxis/SocketMonitoring)
+* [Socket Programmierung](/Praxis/Socketprogrammierung)
 
 ### Theorie
-* [End2End Verzögerung](/E2EVerzoegerung)
-* [Paketverlust](/Paketverlust)
+* [End2End Verzögerung](/Theorie/E2EVerzoegerung)
+* [Paketverlust](/Theorie/Paketverlust)
 
 ## Links and Tools
 

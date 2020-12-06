@@ -1,7 +1,7 @@
 from threading import Thread, Event, Lock
 import time
 
-from Aufgabe1_RealTime.src import GLOBAL_VALUES
+from Praxis.Aufgabe1_RealTime.src import GLOBAL_VALUES
 
 
 class Station(Thread):
