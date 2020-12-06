@@ -3,7 +3,9 @@ import time
 import struct
 import numpy
 
-My_IP = '127.0.0.1'
+VPN_IP = '141.37.206.9'
+# My_IP = '127.0.0.1'
+My_IP = VPN_IP
 My_PORT = 50000
 server_activity_period = 30
 

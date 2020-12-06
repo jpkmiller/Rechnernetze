@@ -1,7 +1,9 @@
 import socket
 import struct
 
-Server_IP = '127.0.0.1'
+VPN_IP = '141.37.206.9'
+# Server_IP = '127.0.0.1'
+Server_IP = VPN_IP
 Server_PORT = 50000
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
