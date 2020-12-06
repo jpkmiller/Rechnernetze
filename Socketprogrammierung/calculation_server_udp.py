@@ -22,7 +22,7 @@ functions = {
     'Maximum': lambda l: numpy.copy(l).max(initial=0x80000000)
 }
 
-while True:
+while time.time()<t_end:
     try:
         data, addr = sock.recvfrom(1024)
         (id, operator, number) = struct.unpack('>I' + str(command_length) + 'sB', data[:69])

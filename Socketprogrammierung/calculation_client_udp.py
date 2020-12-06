@@ -8,6 +8,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.settimeout(10)
 
 def calculate(operator, operands):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(10)
     id = 0
     operands_size = len(operands)
     payload = struct.pack('>I64sB' + str(operands_size) + 'i',
@@ -25,7 +27,6 @@ def calculate(operator, operands):
     except socket.timeout:
         print('Socket timed out')
         close()
-
 
 def close():
     sock.close()

@@ -26,22 +26,24 @@ functions = {
 sock.listen(1)
 print('Listening ...')
 
-while True:
+while time.time()<t_end:
     print("waiting for connection")
     try:
         conn, addr = sock.accept()
         print('Incoming connection accepted: ', addr)
+        break
     except socket.timeout:
         print('Socket timed out listening', time.asctime())
         continue
 
+while time.time() < t_end:
     try:
         data = conn.recv(1024)
         if not data:  # receiving empty messages means that the socket other side closed the socket
             print('Connection closed from other side')
             print('Closing ...')
             conn.close()
-            continue
+            break
         (id, operator, number) = struct.unpack('>I' + str(command_length) + 'sB', data[:69])
         operator = operator.decode('utf-8').strip('\x00')
         operands = struct.unpack_from('>' + str(number) + 'i', data[69:])
@@ -51,10 +53,8 @@ while True:
         print(operands)
         print(payload)
         conn.send(payload)
-
     except socket.timeout:
         print('Socket timed out at', time.asctime())
-        continue
 
 sock.close()
 if conn:

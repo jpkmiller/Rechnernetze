@@ -7,13 +7,10 @@ MESSAGE = 'Hello, World!'
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.settimeout(10)
 
-
-def connect():
-    print('Connecting to TCP server with IP ', Server_IP, ' on Port ', Server_PORT)
-    sock.connect((Server_IP, Server_PORT))
-
-
 def calculate(operator, operands):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(10)
+    sock.connect((Server_IP, Server_PORT))
     id = 0
     operands_size = len(operands)
     payload = struct.pack('>I64sB' + str(operands_size) + 'i',
