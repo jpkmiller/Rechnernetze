@@ -12,34 +12,41 @@ TCPPortsClosed = set()
 UDPPortsOpened = set()
 UDPPortsClosed = set()
 
+sockUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-def scan(port: int, socketType: int):
-    while True:
-        with closing(socket.socket(socket.AF_INET, socketType)) as sock:
-            if sock.connect_ex((Server_IP, port)) == 0:
-                # print('Port {} open\n'.format(port))
-                if socketType == 1:
-                    TCPPortsOpened.add(port)
-                else:
-                    UDPPortsOpened.add(port)
-                sock.sendto(MESSAGE.encode('utf-8'), (Server_IP, port))
-                sock.close()
-            else:
-                # print('Port {} close\n'.format(port))
-                if socketType == 1:
-                    TCPPortsClosed.add(port)
-                else:
-                    UDPPortsClosed.add(port)
-        if not Continue:
-            break
 
+def scanUDP(port: int):
+    sockUDP.settimeout(10)
+    try:
+        sockUDP.sendto(MESSAGE.encode('utf-8'), (Server_IP, port))
+        sockUDP.recvfrom(1024)
+        UDPPortsOpened.add(port)
+    except socket.error:
+        UDPPortsClosed.add(port)
+
+
+def scanTCP(port: int):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(10)
+    try:
+        sock.connect((Server_IP, port))
+        sock.send(MESSAGE.encode('utf-8'))
+        sock.recv(1024).decode('utf-8')
+        TCPPortsOpened.add(port)
+    except socket.error:
+        TCPPortsClosed.add(port)
+    sock.close()
 
 threads = []
 
 
 def startScan(socketType: int):
+    if socketType == socket.SOCK_DGRAM:
+        scan = scanUDP
+    elif socketType == socket.SOCK_STREAM:
+        scan = scanTCP
     for i in range(1, 51):
-        t = Thread(target=scan, args=(i, socketType), daemon=True)
+        t = Thread(target=scan, args=(i,), daemon=True)
         threads.append(t)
         t.start()
 
@@ -54,8 +61,8 @@ if __name__ == '__main__':
     # TCP
     startTCP = time.time()
     print("Started TCP Port Scan")
-    startScan(1)
-    while time.time() - startTCP <= 5:
+    startScan(socket.SOCK_STREAM)
+    while time.time() - startTCP <= 30:
         ...
     Continue = False
     stopScan()
@@ -63,13 +70,14 @@ if __name__ == '__main__':
 
     # UDP
     Continue = True
-    startUCP = time.time()
+    startUDP = time.time()
     print("Started UDP Port Scan")
-    startScan(2)
-    while time.time() - startTCP <= 5:
+    startScan(socket.SOCK_DGRAM)
+    while time.time() - startUDP <= 30:
         ...
     Continue = False
     stopScan()
+    sockUDP.close()
     print("Stopped UDP Port Scan")
 
     print("Opened TCP Ports: {}".format(TCPPortsOpened))
