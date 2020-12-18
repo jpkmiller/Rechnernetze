@@ -1,8 +1,10 @@
 import json
 import socket
+import threading
+import select
 from concurrent.futures import ThreadPoolExecutor
 
-executor = ThreadPoolExecutor(9)
+register_executor = ThreadPoolExecutor(2)
 My_IP = '127.0.0.1'
 server_ip = [127, 0, 0, 1]
 print(My_IP)
@@ -12,21 +14,18 @@ tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_sock.bind((My_IP, My_PORT))
 tcp_sock.listen(1)
 
-# Nickname -> (IPAddr, Port)
+# Nickname -> (IPAddr, Port, connection)
 clientList = {}
 
 
 def pack_payload(json_string):
     payload_msg = bytearray(json_string, 'utf-8')
-    print(len(payload_msg))
     msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='big', signed=False))
-    print(msg)
     msg.extend(payload_msg)
-    print(msg)
     return bytes(msg)
 
 
-def register_client(nickname, ip, port: int, conn) -> bool:
+def register_client(nickname, ip, port: int, conn: socket) -> bool:
     if nickname in clientList:
         return False
 
@@ -58,7 +57,7 @@ def register_client(nickname, ip, port: int, conn) -> bool:
 
 
 def unregister_client(nickname, addr) -> bool:
-    if nickname not in clientList or clientList[nickname][0] != addr:
+    if nickname not in clientList:
         return False
     removed_client = clientList.pop(nickname)
     print("client removed\nnew list: " + str(clientList))
@@ -83,7 +82,6 @@ def broadcast_clients(msg: bytes, exclude=None):
         conn.send(msg)
 
 
-# deregister der form <Nickname><Port>
 message_types = {
     'register': register_client,
     'deregister': unregister_client,
@@ -94,24 +92,16 @@ message_types = {
 def process_request(conn, addr):
     print("try to receive data from " + str(addr))
     data = conn.recv(1024)
-    print("data chunk received " + str(data))
     size = int.from_bytes(bytes=data[:4], byteorder='big', signed=False)
     payload = data[4:].decode('utf-8')
-    print("expected size is " + str(size) + " actual size is " + str(len(payload)))
     print(len(payload) < size)
     while len(payload) < size:
         data = conn.recv(1024)
         # print("data chunk received")
         payload += data.decode('utf-8')
-
-    print("data received")
-    # TODO: check if this is needed
-    # json.dumps(payload)
-    # -----------------------------
     payload_dict = json.loads(payload)
     print("data converted payload is: " + str(payload_dict))
     msg_type = payload_dict['type']
-    print(msg_type)
     try:
         if msg_type == 'register':
             nickname = payload_dict['nickname']
@@ -137,13 +127,28 @@ def process_request(conn, addr):
         print("invalid messagetype")
 
 
+msg_executor = ThreadPoolExecutor(7)
+
+
+def check_msgs():
+    timeout = 2
+    while True:
+        if len(clientList) == 0:
+            continue
+        ready_sockets = select.select([c for ip, port, c in clientList.copy().values()], [], [], timeout)
+        for conn in ready_sockets[0]:
+            print("message received")
+            msg_executor.submit(process_request, conn, conn.getpeername())
+
+
 if __name__ == '__main__':
+    threading.Thread(target=check_msgs).start()
     while True:
         print('waiting for connection')
         try:
             conn, addr = tcp_sock.accept()
             print('Incoming connection accepted: ', addr)
-            executor.submit(process_request, conn, addr)
+            register_executor.submit(process_request, conn, addr)
         except socket.timeout:
             print('Socket timed out listening')
             continue
