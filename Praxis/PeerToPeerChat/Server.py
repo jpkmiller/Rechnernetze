@@ -1,21 +1,29 @@
 import json
 import socket
-import struct
 from concurrent.futures import ThreadPoolExecutor
 
 executor = ThreadPoolExecutor(9)
 My_IP = '127.0.0.1'
 server_ip = [127, 0, 0, 1]
 print(My_IP)
-My_PORT = 50000
+My_PORT = 2000
 server_activity_period = 30
-udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_sock.bind((My_IP, My_PORT))
+tcp_sock.listen(1)
 
 # Nickname -> (IPAddr, Port)
 clientList = {}
+
+
+def pack_payload(json_string):
+    payload_msg = bytearray(json_string, 'utf-8')
+    print(len(payload_msg))
+    msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='big', signed=False))
+    print(msg)
+    msg.extend(payload_msg)
+    print(msg)
+    return bytes(msg)
 
 
 def register_client(nickname, ip, port: int, conn) -> bool:
@@ -32,10 +40,7 @@ def register_client(nickname, ip, port: int, conn) -> bool:
     }
 
     client_list_response = json.dumps(user_list_dict)
-    client_list_msg = bytearray(client_list_response, 'utf-8')
-    msg = bytearray(len(client_list_msg))
-    msg.extend(client_list_msg)
-    conn.send(bytes(msg))
+    conn.send(pack_payload(client_list_response))
 
     update_user_list_dict = {
         'type': 'user-list',
@@ -45,12 +50,10 @@ def register_client(nickname, ip, port: int, conn) -> bool:
         }
     }
     update_list_response = json.dumps(update_user_list_dict)
-    update_list_msg = bytearray(update_list_response, 'utf-8')
-    update_msg = bytearray(len(update_list_msg))
-    update_msg.extend(update_list_msg)
-    broadcast_clients(bytes(update_msg))
+    broadcast_clients(pack_payload(update_list_response))
 
     clientList[nickname] = (ip, port, conn)
+    print("client added\nnew list: " + str(clientList))
     return True
 
 
@@ -58,6 +61,7 @@ def unregister_client(nickname, addr) -> bool:
     if nickname not in clientList or clientList[nickname][0] != addr:
         return False
     removed_client = clientList.pop(nickname)
+    print("client removed\nnew list: " + str(clientList))
     removed_client[3].close()
     update_user_list_dict = {
         'type': 'user-list',
@@ -67,10 +71,7 @@ def unregister_client(nickname, addr) -> bool:
         }
     }
     update_list_response = json.dumps(update_user_list_dict)
-    update_list_msg = bytearray(update_list_response, 'utf-8')
-    update_msg = bytearray(len(update_list_msg))
-    update_msg.extend(update_list_msg)
-    broadcast_clients(bytes(update_msg))
+    broadcast_clients(pack_payload(update_list_response))
     return True
 
 
@@ -91,40 +92,49 @@ message_types = {
 
 
 def process_request(conn, addr):
+    print("try to receive data from " + str(addr))
     data = conn.recv(1024)
-    size = int.from_bytes(bytes=data[:4], byteorder='little', signed=False)
+    print("data chunk received " + str(data))
+    size = int.from_bytes(bytes=data[:4], byteorder='big', signed=False)
     payload = data[4:].decode('utf-8')
-    while len(payload) <= size:
+    print("expected size is " + str(size) + " actual size is " + str(len(payload)))
+    print(len(payload) < size)
+    while len(payload) < size:
         data = conn.recv(1024)
+        # print("data chunk received")
         payload += data.decode('utf-8')
 
+    print("data received")
     # TODO: check if this is needed
-    json.dumps(payload)
+    # json.dumps(payload)
     # -----------------------------
-
     payload_dict = json.loads(payload)
+    print("data converted payload is: " + str(payload_dict))
     msg_type = payload_dict['type']
+    print(msg_type)
     try:
         if msg_type == 'register':
-            nickname = payload['nickname']
-            ip = payload['ip']
-            port = payload['port']
+            nickname = payload_dict['nickname']
+            ip = payload_dict['ip']
+            port = payload_dict['port']
+            print(nickname + " tries to register")
             register_client(nickname, ip, port, conn)
-
         elif msg_type == 'unregister':
-            nickname = payload['nickname']
+            nickname = payload_dict['nickname']
+            print(nickname + " tries to deregister")
             unregister_client(nickname, addr)
-
         elif msg_type == 'broadcast':
-            nickname = payload['nickname']
-            broadcast_msg = payload['message']
+            nickname = payload_dict['nickname']
+            print(nickname + " tries to broadcast")
+            broadcast_msg = payload_dict['message']
             msg = bytearray(len(broadcast_msg))
             msg.extend(broadcast_msg)
             broadcast_clients(msg, nickname)
-
+        else:
+            print("unknown message type")
     except KeyError:
         # TODO: handle malformed requests
-        pass
+        print("invalid messagetype")
 
 
 if __name__ == '__main__':
