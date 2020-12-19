@@ -15,6 +15,7 @@ tcp_sock.bind((My_IP, My_PORT))
 tcp_sock.listen(1)
 
 # Nickname -> (IPAddr, Port, connection)
+CLIENTS_LOCK = threading.Lock()
 clientList = {}
 
 
@@ -26,10 +27,17 @@ def pack_payload(json_string):
 
 
 def register_client(nickname, ip, port: int, conn: socket) -> bool:
-    if nickname in clientList:
-        return False
+    try:
+        CLIENTS_LOCK.acquire()
+        if nickname in clientList:
+            CLIENTS_LOCK.release()
+            return False
+        added_list = [{'nickname': key, 'ip': value[0], 'port': value[1]} for key, value in clientList.items()]
+        clientList[nickname] = (ip, port, conn)
+        print("client added\nnew list: " + str(clientList))
+    finally:
+        CLIENTS_LOCK.release()
 
-    added_list = [{'nickname': key, 'ip': value[0], 'port': value[1]} for key, value in clientList.items()]
     user_list_dict = {
         'type': 'user-list',
         'users': {
@@ -49,18 +57,21 @@ def register_client(nickname, ip, port: int, conn: socket) -> bool:
         }
     }
     update_list_response = json.dumps(update_user_list_dict)
-    broadcast_clients(pack_payload(update_list_response))
+    broadcast_clients(pack_payload(update_list_response), exclude=nickname)
 
-    clientList[nickname] = (ip, port, conn)
-    print("client added\nnew list: " + str(clientList))
     return True
 
 
 def unregister_client(nickname, addr) -> bool:
-    if nickname not in clientList:
-        return False
-    removed_client = clientList.pop(nickname)
-    print("client removed\nnew list: " + str(clientList))
+    try:
+        CLIENTS_LOCK.acquire()
+        if nickname not in clientList:
+            CLIENTS_LOCK.release()
+            return False
+        removed_client = clientList.pop(nickname)
+        print("client removed\nnew list: " + str(clientList))
+    finally:
+        CLIENTS_LOCK.release()
     removed_client[3].close()
     update_user_list_dict = {
         'type': 'user-list',
@@ -75,7 +86,12 @@ def unregister_client(nickname, addr) -> bool:
 
 
 def broadcast_clients(msg: bytes, exclude=None):
-    for nickname, (ip_addr, port, conn) in clientList.items():
+    try:
+        CLIENTS_LOCK.acquire()
+        clientList_copy = clientList.copy()
+    finally:
+        CLIENTS_LOCK.release()
+    for nickname, (ip_addr, port, conn) in clientList_copy.items():
         # exclude certain client from broadcast e.g. register
         if exclude is not None and nickname is exclude:
             continue
@@ -133,9 +149,14 @@ msg_executor = ThreadPoolExecutor(7)
 def check_msgs():
     timeout = 2
     while True:
-        if len(clientList) == 0:
+        try:
+            CLIENTS_LOCK.acquire()
+            clientList_copy = clientList.copy()
+        finally:
+            CLIENTS_LOCK.release()
+        if len(clientList.copy()) == 0:
             continue
-        ready_sockets = select.select([c for ip, port, c in clientList.copy().values()], [], [], timeout)
+        ready_sockets = select.select([c for ip, port, c in clientList_copy.values()], [], [], timeout)
         for conn in ready_sockets[0]:
             print("message received")
             msg_executor.submit(process_request, conn, conn.getpeername())

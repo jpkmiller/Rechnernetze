@@ -1,10 +1,14 @@
 import socket
-import struct
+import threading
 import json
+from concurrent.futures.thread import ThreadPoolExecutor
 from sys import argv
 import time
 
+import select
+
 message_types = ['register', 'deregister', 'send']
+
 
 
 # sus schhhhhhhhhhhhapelt
@@ -17,6 +21,7 @@ message_types = ['register', 'deregister', 'send']
 # udp_port.sendTo(address, "connect to me at 1234"
 # tcp_port.accept()
 
+
 class Client:
 
     def __init__(self, nickname: str = 'shitass', SERVER_IP: str = '127.0.0.1'):
@@ -27,18 +32,44 @@ class Client:
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip, self.port = self.socketUDP.getsockname()
         self.SERVER = SERVER_IP, 2000
+        self.CLIENTS_LOCK = threading.Lock()
         self.clients = {}
+        self.server_executor = ThreadPoolExecutor(max_workers=3)
 
+        threading.Thread(target=self.receive_server_messages).start()
         self.register()
+
+    def update_user_list(self, users):
+        to_remove = users['removed']
+        to_add = users['added']
+        try:
+            self.CLIENTS_LOCK.acquire()
+            for user in to_add:
+                self.clients[user['nickname']] = (user['ip'], user['port'])
+                # print('user ' + user['nickname'] + ' added to user list of ' + self.nickname)
+            for user in to_remove:
+                self.clients.pop(user['nickname'])
+                # print('user ' + user['nickname'] + ' removed from user list of ' + self.nickname)
+        finally:
+            self.CLIENTS_LOCK.release()
+
+    def receive_server_messages(self):
+        while True:
+            ready_sockets, _, _ = select.select([self.serverSocket], [], [], 10)
+            if ready_sockets:
+                data = self.receiveMessage(self.serverSocket)
+                if data['type'] == 'user-list':
+                    self.server_executor.submit(self.update_user_list, data['users'])
+
 
     @staticmethod
     def convertToBytes(json_string: str) -> bytes:
         payload_msg = bytearray(json_string, 'utf-8')
-        print(len(payload_msg))
+        # print(len(payload_msg))
         msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='big', signed=False))
-        print(msg)
+        # print(msg)
         msg.extend(payload_msg)
-        print(msg)
+        # print(msg)
         return bytes(msg)
 
     @staticmethod
@@ -52,15 +83,15 @@ class Client:
         sock.send(bytesMessage)
 
         if not keepAlive:
-            print("closing socket")
+            # print("closing socket")
             sock.close()
 
     def register(self):
         registerDict = {'type': 'register', 'nickname': self.nickname, 'ip': self.ip, 'port': self.port}
         self.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(registerDict), True)
-        response = Client.receiveMessage(self.serverSocket)
-        for user in response['users']['added']:
-            self.clients[user['nickname']] = (user['ip'], user['port'])
+        # response = Client.receiveMessage(self.serverSocket)
+        # for user in response['users']['added']:
+        #     self.clients[user['nickname']] = (user['ip'], user['port'])
 
     def unregister(self):
         unregisterDict = {'type': 'unregister', 'nickname': self.nickname}
@@ -82,24 +113,24 @@ class Client:
     @staticmethod
     def receiveMessage(sock: socket):
         try:
-            data = sock.recv(1024)
-            size = int.from_bytes(bytes=data[:4], byteorder='big', signed=False)
-            payload = data[4:].decode('utf-8')
-            print("expected size is " + str(size) + " actual size is " + str(len(payload)))
-            print(len(payload) < size)
-            while len(payload) < size:
-                data = sock.recv(1024)
-                # print("data chunk received")
-                payload += data.decode('utf-8')
+            size = int.from_bytes(bytes=sock.recv(4), byteorder='big', signed=False)
+            data = sock.recv(size)
+            payload = data.decode('utf-8')
+            # print("expected size is " + str(size) + " actual size is " + str(len(payload)))
+            # print(len(payload) < size)
+            # while len(payload) < size:
+            #     data = sock.recv(1024)
+            #     # print("data chunk received")
+            #     payload += data.decode('utf-8')
 
-            print("data received")
-            # TODO: check if this is needed
-            # json.dumps(payload)
-            # -----------------------------
-            payload_dict = json.loads(payload)
+            # print("data received")
+            try:
+                payload_dict = json.loads(payload)
+            except json.decoder.JSONDecodeError:
+                print(payload)
             return payload_dict
         except socket.timeout:
-            print('Socket timed out')
+            # print('Socket timed out')
             sock.close()
 
 
