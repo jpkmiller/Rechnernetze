@@ -10,7 +10,6 @@ import select
 message_types = ['register', 'deregister', 'send']
 
 
-
 # sus schhhhhhhhhhhhapelt
 
 # json.loads(...) # decode
@@ -60,7 +59,8 @@ class Client:
                 data = self.receiveMessage(self.serverSocket)
                 if data['type'] == 'user-list':
                     self.server_executor.submit(self.update_user_list, data['users'])
-
+                else:
+                    print("unknown message type")
 
     @staticmethod
     def convertToBytes(json_string: str) -> bytes:
@@ -84,6 +84,7 @@ class Client:
 
         if not keepAlive:
             # print("closing socket")
+            sock.shutdown(1)
             sock.close()
 
     def register(self):
@@ -95,6 +96,7 @@ class Client:
 
     def unregister(self):
         unregisterDict = {'type': 'unregister', 'nickname': self.nickname}
+        # socket needs to be kept alive, otherwise the socket of the other clients would be closed to
         self.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(unregisterDict), True)
 
     def sendMessage(self, message: str, nickname: str):
@@ -116,18 +118,8 @@ class Client:
             size = int.from_bytes(bytes=sock.recv(4), byteorder='big', signed=False)
             data = sock.recv(size)
             payload = data.decode('utf-8')
-            # print("expected size is " + str(size) + " actual size is " + str(len(payload)))
-            # print(len(payload) < size)
-            # while len(payload) < size:
-            #     data = sock.recv(1024)
-            #     # print("data chunk received")
-            #     payload += data.decode('utf-8')
-
             # print("data received")
-            try:
-                payload_dict = json.loads(payload)
-            except json.decoder.JSONDecodeError:
-                print(payload)
+            payload_dict = json.loads(payload)
             return payload_dict
         except socket.timeout:
             # print('Socket timed out')

@@ -72,7 +72,6 @@ def unregister_client(nickname, addr) -> bool:
         print("client removed\nnew list: " + str(clientList))
     finally:
         CLIENTS_LOCK.release()
-    removed_client[3].close()
     update_user_list_dict = {
         'type': 'user-list',
         'users': {
@@ -80,8 +79,10 @@ def unregister_client(nickname, addr) -> bool:
             'removed': [{'nickname': nickname, 'ip': removed_client[0], 'port': removed_client[1]}]
         }
     }
+    print(update_user_list_dict)
     update_list_response = json.dumps(update_user_list_dict)
     broadcast_clients(pack_payload(update_list_response))
+    removed_client[3].close()
     return True
 
 
