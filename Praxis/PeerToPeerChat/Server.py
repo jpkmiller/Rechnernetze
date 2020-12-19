@@ -141,12 +141,15 @@ def process_request(conn, addr):
         payload = data.decode('utf-8')
         # convert the json string to a dict
         payload_dict = json.loads(payload)
-    # TODO: handling with malformed request (Exception thrown by json.loads(payload))
+    except json.decoder.JSONDecodeError:
+        # TODO: handle with malformed request (Exception thrown by json.loads(payload))
+        # actually those are clientside errors. For now just ignore them.
+        return
     except socket.timeout:
         # close connection if socket timed out
         conn.close()
         return
-    # get message typ and delegate the request
+    # get message type and delegate the request
     msg_type = payload_dict['type']
     try:
         if msg_type == 'register':
