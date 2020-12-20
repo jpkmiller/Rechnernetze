@@ -29,6 +29,7 @@ class Client:
         self.socketUDP.bind(('127.0.0.1', 0))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socketTCP.bind(('127.0.0.1', 0))
+        self.socketTCP.listen(1)
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip, self.port = self.socketUDP.getsockname()
         self.SERVER = SERVER_IP, 2000
@@ -72,7 +73,7 @@ class Client:
                     if type == 'user-list':
                         self.update_user_list(data['users'])
                     elif type == 'message':
-                        self.print_message('server', data['message'])
+                        print("broadcast message:\n" + data['message'])
                     else:
                         print("unknown message type")
                 except KeyError:
@@ -113,16 +114,14 @@ class Client:
             self.CLIENTS_LOCK.release()
         print(addr[0])
         for nickname, client in client_list_copy.items():
-            print(client[0])
-            print(client[1])
             # search for ip and udp port
             if client[0] == addr[0] and client[1] == addr[1]:
                 print("found address")
                 try:
-                    print('try to connect')
                     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    client_socket.settimeout(10)
-                    client_socket.connect((addr[0], port))  # connect to tcp port
+                    to = (addr[0], int(port))
+                    print("try to connect to " + str(to))
+                    client_socket.connect(to)  # connect to tcp port
                 except socket.timeout:
                     print('remote tcp socket not valid')
                     return
@@ -160,15 +159,15 @@ class Client:
             ready_sockets = select.select(connections, [], [], timeout)
             # go through all connections which are ready to read (open and a message is present)
             for conn in ready_sockets[0]:
-                print("message received")
                 # start a thread which executes the request.
-                self.client_processor.submit(self.print_message, conn)
+                self.client_processor.submit(self.process_client_msgs, conn)
 
     def process_client_msgs(self, conn: socket):
         msg = Client.receive_message(conn)
+        print(msg)
         try:
             if msg['type'] == 'message':
-                self.print_message(str(conn), msg['message'])
+                print('received message: \n' + msg['message'])
         except KeyError:
             return
 
@@ -223,6 +222,7 @@ class Client:
         self.socketUDP.sendto(bytes(connectToClientMessage, 'utf-8'), (ip, port))
         self.socketTCP.settimeout(10)
         try:
+            print("waiting for connection on " + str(self.socketTCP))
             conn, _ = self.socketTCP.accept()
         except socket.timeout:
             # TODO: think about better handling
