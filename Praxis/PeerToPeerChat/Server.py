@@ -191,15 +191,15 @@ def check_msgs():
             clientList_copy = clientList.copy()
         finally:
             CLIENTS_LOCK.release()
-        if len(clientList.copy()) == 0:
+        if len(clientList_copy) == 0:
             continue
         # get all connections of the clientList
         connections = [c for ip, port, c in clientList_copy.values()]
         # select filters all connections ready to read (arg1), ready to write (arg2), or 'exceptional?' state (arg3)
         # the last argument is the timeout, how long this call should wait if no connection is ready.
-        ready_sockets = select.select(connections, [], [], timeout)
+        ready_sockets, _, _ = select.select(connections, [], [], timeout)
         # go through all connections which are ready to read (open and a message is present)
-        for conn in ready_sockets[0]:
+        for conn in ready_sockets:
             print("message received")
             # start a thread which executes the request.
             request_processor.submit(process_request, conn, conn.getpeername())
