@@ -32,9 +32,11 @@ class Client:
         self.socketTCP.listen(1)
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip, self.port = self.socketUDP.getsockname()
-        self.SERVER = SERVER_IP, 2000
+        self.SERVER = SERVER_IP, 20000
         self.CLIENTS_LOCK = threading.Lock()
         self.clients = {}
+        self.tcp_to_nick = {}
+        self.udp_to_nick = {}
         self.client_processor = ThreadPoolExecutor(max_workers=3)
         self.connection_processor = ThreadPoolExecutor(max_workers=3)
 
@@ -51,8 +53,10 @@ class Client:
             for user in to_add:
                 self.clients[user['nickname']] = [
                     user['ip'], user['port'], socket.socket(socket.AF_INET, socket.SOCK_STREAM)]
+                self.udp_to_nick[(user['ip'], user['port'])] = user['nickname']
             for user in to_remove:
                 self.clients.pop(user['nickname'])
+                self.udp_to_nick.pop((user['ip'], user['port']))
         except KeyError:
             # TODO: handling malformed requests
             return
@@ -61,18 +65,17 @@ class Client:
 
     def receive_server_messages(self):
         while True:
-            # check if server has send something
+            # check if server has sent something
             ready_sockets, _, _ = select.select([self.serverSocket], [], [], 10)
             if ready_sockets:
                 # receive data
                 data = self.receive_message(self.serverSocket)
                 # process the message
-                # TODO: react on a broadcast message
                 try:
-                    type = data['type']
-                    if type == 'user-list':
+                    msg_type = data['type']
+                    if msg_type == 'user-list':
                         self.update_user_list(data['users'])
-                    elif type == 'message':
+                    elif msg_type == 'message':
                         print("broadcast message:\n" + data['message'])
                     else:
                         print("unknown message type")
@@ -80,7 +83,7 @@ class Client:
                     print('FATAL: SERVER SEND MALFORMED MESSAGE')
                     continue
 
-    def process_connection_requests(self, data, addr):
+    def process_connection_requests(self, data, udp_addr: tuple):
         data = data.decode('utf-8')
         print("data in process_connection_requests: " + data)
         try:
@@ -92,47 +95,32 @@ class Client:
                     return
             else:
                 return
-            """
-            #port = int(re.search(r'\d+', data).group())
-            # re.findall(r'\d+', data)[0]
-            print(data)
-            ohne_prefix = data.removeprefix('Please talk to me baby on ')
-            print(ohne_prefix)
-            ohne_suffix = ohne_prefix.removesuffix(' one more time.')
-            print(ohne_suffix)
-            print(data.removeprefix('Please talk to me baby on ').removesuffix(' one more time.'))
-            port = int(data.removeprefix('Please talk to me baby on ').removesuffix(' one more time.'))
-            """
         except ValueError:
             return
         print("port in process_connection_requests: " + str(port))
 
         try:
-            self.CLIENTS_LOCK.acquire()
-            client_list_copy = self.clients.copy()
-        finally:
-            self.CLIENTS_LOCK.release()
-        print(addr[0])
-        for nickname, client in client_list_copy.items():
-            # search for ip and udp port
-            if client[0] == addr[0] and client[1] == addr[1]:
-                print("found address")
-                try:
-                    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    to = (addr[0], int(port))
-                    print("try to connect to " + str(to))
-                    client_socket.connect(to)  # connect to tcp port
-                except socket.timeout:
-                    print('remote tcp socket not valid')
-                    return
-                print('connected')
-                try:
-                    self.CLIENTS_LOCK.acquire()
-                    self.clients[nickname][2] = client_socket
-                finally:
-                    self.CLIENTS_LOCK.release()
-                print('connection successfully achieved')
-                break
+            with self.CLIENTS_LOCK:
+                nickname = self.udp_to_nick[udp_addr]
+        except KeyError:
+            print("address not found")
+            return
+
+        try:
+            client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            to = (udp_addr[0], int(port))
+            print("try to connect to " + str(to))
+            client_socket.connect(to)  # connect to tcp port
+        except socket.timeout:
+            print('remote tcp socket not valid')
+            return
+        print('connected')
+
+        with self.CLIENTS_LOCK:
+            self.clients[nickname][2] = client_socket
+            self.tcp_to_nick[to] = nickname
+
+        print('connection successfully achieved')
 
     def handle_connection_requests(self):
         data, addr = self.socketUDP.recvfrom(64)
@@ -164,14 +152,16 @@ class Client:
 
     def process_client_msgs(self, conn: socket):
         msg = Client.receive_message(conn)
-        print(msg)
+        with self.CLIENTS_LOCK:
+            nickname = self.tcp_to_nick[conn.getpeername()]
         try:
             if msg['type'] == 'message':
-                print('received message: \n' + msg['message'])
+                print('received message from ' + nickname + ':\n' + msg['message'])
         except KeyError:
             return
 
-    def print_message(self, origin, msg):
+    @staticmethod
+    def print_message(origin, msg):
         try:
             print('received message from ' + origin + ': \n' + msg['message'])
         except KeyError:
@@ -200,7 +190,6 @@ class Client:
         sock.send(bytesMessage)
 
         if not keepAlive:
-            sock.shutdown(1)
             sock.close()
 
     def register(self):
@@ -216,6 +205,14 @@ class Client:
         # socket needs to be kept alive, otherwise the socket of the other clients would be closed to
         self.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(unregisterDict), True)
 
+    def broadcast(self, message):
+        msg = {
+            'type': 'broadcast',
+            'message': message
+        }
+        Client.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(msg), True)
+
+
     def connect_to_client(self, ip: str, port: int):
         connectToClientMessage = 'Please talk to me baby on {} one more time.'.format(
             str(self.socketTCP.getsockname()[1]))
@@ -229,7 +226,7 @@ class Client:
             print("das hat nicht geklappt")
         return conn
 
-    def sendMessage(self, message: str, nickname: str):
+    def send_message(self, message: str, nickname: str):
         try:
             self.CLIENTS_LOCK.acquire()
             user = self.clients[nickname]
@@ -243,7 +240,7 @@ class Client:
             user[2].send(bytesMessage)
         except socket.timeout:
             # might be a bad idea. WARNING: not delete this because socket.timeout is a subtype of OSError
-            self.sendMessage(message, nickname)
+            self.send_message(message, nickname)
         except OSError:
             conn = self.connect_to_client(user[0], user[1])
             try:
@@ -253,7 +250,7 @@ class Client:
                 print("client not found")
             finally:
                 self.CLIENTS_LOCK.release()
-            self.sendMessage(message, nickname)
+            self.send_message(message, nickname)
 
     @staticmethod
     def receive_message(sock: socket):

@@ -1,13 +1,14 @@
 import json
 import socket
 import threading
+
 import select
 from concurrent.futures import ThreadPoolExecutor
 
 My_IP = '127.0.0.1'
 server_ip = [127, 0, 0, 1]
 print(My_IP)
-My_PORT = 2000
+My_PORT = 20000
 server_activity_period = 30
 tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_sock.bind((My_IP, My_PORT))
@@ -16,6 +17,9 @@ tcp_sock.listen(1)
 # Nickname -> (IPAddr, Port, connection)
 CLIENTS_LOCK = threading.Lock()
 clientList = {}
+addr_to_nick = {}
+IN_PROGRESS_LOCK = threading.Lock()
+conns_in_progress = {}
 
 
 # packs the json_string to a bytes object which can be send via tcp.
@@ -30,7 +34,7 @@ def pack_payload(json_string):
     return bytes(msg)
 
 
-def register_client(nickname, ip, port: int, conn: socket) -> bool:
+def register_client(nickname, ip, port: int, conn: socket, tcp_addr) -> bool:
     try:
         CLIENTS_LOCK.acquire()
         # check if client is already registered
@@ -49,7 +53,8 @@ def register_client(nickname, ip, port: int, conn: socket) -> bool:
         added_list = [{'nickname': key, 'ip': value[0], 'port': value[1]} for key, value in clientList.items()]
         # add the client to the clientList.
         # This needs to be done now, otherwise another client could register without knowledge of this one
-        clientList[nickname] = (ip, port, conn)
+        clientList[nickname] = [ip, port, conn]
+        addr_to_nick[tcp_addr] = nickname
         # The client now receives updates. If a client would register now, he would be added through an update.
         print("client added\nnew list: " + str(clientList))
     finally:
@@ -93,6 +98,7 @@ def unregister_client(nickname, addr) -> bool:
             return False
         # get and remove client
         removed_client = clientList.pop(nickname)
+        addr_to_nick.pop(addr)
         print("client removed\nnew list: " + str(clientList))
     finally:
         CLIENTS_LOCK.release()
@@ -109,7 +115,7 @@ def unregister_client(nickname, addr) -> bool:
     # and broadcast it to all users (current user is already removed -> exclude ot needed)
     broadcast_clients(pack_payload(update_list_response))
     # finally close the connection
-    removed_client[3].close()
+    removed_client[2].close()
     return True
 
 
@@ -127,28 +133,55 @@ def broadcast_clients(msg: bytes, exclude=None):
             continue
         # send the message over the TCP port
         # TODO: What happens if the connection is already closed?
-        conn.send(msg)
+        try:
+            conn.send(msg)
+        except ConnectionResetError:
+            continue
 
+# def set_client_flag(addr):
+#     with CLIENTS_LOCK:
+#         if clientList[addr_to_nick[addr]][3]:
+#             CLIENTS_LOCK.release()
+#             return
+#         clientList[addr_to_nick[addr]][3] = True
 
 # tries to receive the data, decodes it and delegates the request to the corresponding function
-def process_request(conn, addr):
+def process_request(conn: socket.socket, addr: tuple):
     try:
         # get the size of the message
-        size = int.from_bytes(bytes=conn.recv(4), byteorder='big', signed=False)
+        print("processing_request")
+        b = conn.recv(4)
+        print("check for closed connection")
+        if b == 0:
+            # socket closed by client
+            conn.close()
+            return
+        print(b)
+        size = int.from_bytes(bytes=b, byteorder='big', signed=False)
+        print("got size")
         # get the message itself
         data = conn.recv(size)
+        print("size: " + str(size) + ", data: " + str(data))
         # decode the data
         payload = data.decode('utf-8')
         # convert the json string to a dict
         payload_dict = json.loads(payload)
+    except ConnectionResetError:
+        unregister_client(addr_to_nick[addr], addr)
+        return
     except json.decoder.JSONDecodeError:
+        print("malformed request")
         # TODO: handle with malformed request (Exception thrown by json.loads(payload))
         # actually those are clientside errors. For now just ignore them.
         return
     except socket.timeout:
+        print("timeout")
         # close connection if socket timed out
         conn.close()
         return
+    except TypeError:
+        print("wrong format")
+        conn.close()
     # get message type and delegate the request
     msg_type = payload_dict['type']
     try:
@@ -157,18 +190,18 @@ def process_request(conn, addr):
             ip = payload_dict['ip']
             port = payload_dict['port']
             print(nickname + " tries to register")
-            register_client(nickname, ip, port, conn)
+            register_client(nickname, ip, port, conn, addr)
         elif msg_type == 'unregister':
             nickname = payload_dict['nickname']
             print(nickname + " tries to deregister")
             unregister_client(nickname, addr)
         elif msg_type == 'broadcast':
-            nickname = payload_dict['nickname']
-            print(nickname + " tries to broadcast")
             broadcast_msg = payload_dict['message']
-            msg = bytearray(len(broadcast_msg))
-            msg.extend(broadcast_msg)
-            broadcast_clients(msg, nickname)
+            msg = {
+                'type': 'message',
+                'message': broadcast_msg
+            }
+            broadcast_clients(pack_payload(json.dumps(msg)), addr_to_nick[addr])
         else:
             print("unknown message type")
     except KeyError:
@@ -201,8 +234,10 @@ def check_msgs():
         # go through all connections which are ready to read (open and a message is present)
         for conn in ready_sockets:
             print("message received")
+            # print(str(conn))
             # start a thread which executes the request.
-            request_processor.submit(process_request, conn, conn.getpeername())
+            # request_processor.submit(process_request, conn, conn.getpeername())
+            process_request(conn, conn.getpeername())
 
 
 if __name__ == '__main__':
@@ -213,6 +248,7 @@ if __name__ == '__main__':
         print('waiting for connection')
         try:
             conn, addr = tcp_sock.accept()
+            conn.setblocking(True)
             print('Incoming connection accepted: ', addr)
             # normally after a connection is requested, a message will follow. so just process it right away.
             # mostly those requests are register requests.
