@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 My_IP = '127.0.0.1'
 server_ip = [127, 0, 0, 1]
 print(My_IP)
-My_PORT = 20000
+My_PORT = 2000
 server_activity_period = 30
 tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_sock.bind((My_IP, My_PORT))

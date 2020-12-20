@@ -32,7 +32,7 @@ class Client:
         self.socketTCP.listen(1)
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip, self.port = self.socketUDP.getsockname()
-        self.SERVER = SERVER_IP, 20000
+        self.SERVER = SERVER_IP, 2000
         self.CLIENTS_LOCK = threading.Lock()
         self.clients = {}
         self.tcp_to_nick = {}
@@ -66,7 +66,10 @@ class Client:
     def receive_server_messages(self):
         while True:
             # check if server has sent something
-            ready_sockets, _, _ = select.select([self.serverSocket], [], [], 10)
+            try:
+                ready_sockets, _, _ = select.select([self.serverSocket], [], [], 10)
+            except ValueError:
+                continue
             if ready_sockets:
                 # receive data
                 data = self.receive_message(self.serverSocket)
@@ -264,14 +267,17 @@ class Client:
             # convert the json string to a dict
             payload_dict = json.loads(payload)
             return payload_dict
+        except ConnectionResetError:
+            sock.close()
         except json.decoder.JSONDecodeError:
             # TODO: handle with malformed request (Exception thrown by json.loads(payload))
             # one possible failure occurs if the size is wrong.
             # The client is not able to receive any message, because it will not get the right size.
-            return
+            print("malformed")
         except socket.timeout:
             # close connection if socket timed out
             sock.close()
+        return {}
 
 
 if __name__ == '__main__':
