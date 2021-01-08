@@ -39,11 +39,29 @@ class Client:
         self.udp_to_nick = {}
         self.client_processor = ThreadPoolExecutor(max_workers=3)
         self.connection_processor = ThreadPoolExecutor(max_workers=3)
-
-        threading.Thread(target=self.receive_server_messages).start()
-        threading.Thread(target=self.receive_client_messages).start()
-        threading.Thread(target=self.handle_connection_requests).start()
+        self.server_thread = threading.Thread(target=self.receive_server_messages)
+        self.client_thread = threading.Thread(target=self.receive_client_messages)
+        self.connection_thread = threading.Thread(target=self.handle_connection_requests)
+        self.stop_requested = False
         self.register()
+
+    def start_thread(self):
+        self.stop_requested = False
+        self.client_processor = ThreadPoolExecutor(max_workers=3)
+        self.connection_processor = ThreadPoolExecutor(max_workers=3)
+        self.server_thread = threading.Thread(target=self.receive_server_messages)
+        self.client_thread = threading.Thread(target=self.receive_client_messages)
+        self.connection_thread = threading.Thread(target=self.handle_connection_requests)
+        self.server_thread.start()
+        self.client_thread.start()
+        self.connection_thread.start()
+
+    def stop_thread(self):
+        self.stop_requested = True
+        self.client_processor.shutdown()
+        self.connection_processor.shutdown()
+        self.client_thread.join()
+        self.connection_thread.join()
 
     def update_user_list(self, users):
         to_remove = users['removed']
@@ -64,7 +82,7 @@ class Client:
             self.CLIENTS_LOCK.release()
 
     def receive_server_messages(self):
-        while True:
+        while not self.stop_requested:
             # check if server has sent something
             try:
                 ready_sockets, _, _ = select.select([self.serverSocket], [], [], 10)
@@ -73,6 +91,9 @@ class Client:
             if ready_sockets:
                 # receive data
                 data = self.receive_message(self.serverSocket)
+                print(data)
+                if data is None:
+                    break
                 # process the message
                 try:
                     msg_type = data['type']
@@ -83,8 +104,10 @@ class Client:
                     else:
                         print("unknown message type")
                 except KeyError:
+                    print(str(data))
                     print('FATAL: SERVER SEND MALFORMED MESSAGE')
                     continue
+        self.stop_thread()
 
     def process_connection_requests(self, data, udp_addr: tuple):
         data = data.decode('utf-8')
@@ -126,15 +149,20 @@ class Client:
         print('connection successfully achieved')
 
     def handle_connection_requests(self):
-        data, addr = self.socketUDP.recvfrom(64)
-        print("data in handle_connection_requests: " + str(data))
-
-        self.connection_processor.submit(self.process_connection_requests, data, addr)
+        self.socketUDP.settimeout(10)
+        while not self.stop_requested:
+            try:
+                data, addr = self.socketUDP.recvfrom(64)
+            except socket.timeout:
+                continue
+            print("data in handle_connection_requests: " + str(data))
+            self.process_connection_requests(data, addr)
+            # self.connection_processor.submit(self.process_connection_requests, data, addr)
 
     # this method processes request through opened tcp connections (aka. registered clients)
     def receive_client_messages(self):
-        timeout = 2
-        while True:
+        t = 2
+        while not self.stop_requested:
             try:
                 self.CLIENTS_LOCK.acquire()
                 # copy the list! it is likely that the request will change the client list
@@ -146,16 +174,23 @@ class Client:
             # get all connections of the clientList
             connections = [c for ip, port, c in clientList_copy.values()]
             # select filters all connections ready to read (arg1), ready to write (arg2), or 'exceptional?' state (arg3)
-            # the last argument is the timeout, how long this call should wait if no connection is ready.
-            ready_sockets = select.select(connections, [], [], timeout)
+            # the last argument is the t, how long this call should wait if no connection is ready.
+            ready_sockets = select.select(connections, [], [], t)
             # go through all connections which are ready to read (open and a message is present)
             for conn in ready_sockets[0]:
                 # start a thread which executes the request.
-                self.client_processor.submit(self.process_client_msgs, conn)
+                self.process_client_msgs(conn)
+                # self.client_processor.submit(self.process_client_msgs, conn)
 
     def process_client_msgs(self, conn: socket):
         msg = Client.receive_message(conn)
+        print('received msg:')
+        print(msg)
         with self.CLIENTS_LOCK:
+            print(self.socketTCP)
+            print(conn)
+            print(conn.getpeername())
+            print(self.tcp_to_nick)
             nickname = self.tcp_to_nick[conn.getpeername()]
         try:
             if msg['type'] == 'message':
@@ -196,6 +231,10 @@ class Client:
             sock.close()
 
     def register(self):
+        # (re)open socket
+        self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # start threads
+        self.start_thread()
         # create register message
         registerDict = {'type': 'register', 'nickname': self.nickname, 'ip': self.ip, 'port': self.port}
         # convert and send it. the response will be processed in receive_server_messages
@@ -207,6 +246,7 @@ class Client:
         # convert and send it. the response will be processed in receive_server_messages
         # socket needs to be kept alive, otherwise the socket of the other clients would be closed to
         self.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(unregisterDict), True)
+        # stop threads
 
     def broadcast(self, message):
         msg = {
@@ -214,7 +254,6 @@ class Client:
             'message': message
         }
         Client.sendOverTCP(self.serverSocket, self.SERVER, json.dumps(msg), True)
-
 
     def connect_to_client(self, ip: str, port: int):
         connectToClientMessage = 'Please talk to me baby on {} one more time.'.format(
@@ -249,6 +288,7 @@ class Client:
             try:
                 self.CLIENTS_LOCK.acquire()
                 self.clients[nickname][2] = conn
+                self.tcp_to_nick[conn.getpeername()] = nickname
             except KeyError:
                 print("client not found")
             finally:
@@ -259,7 +299,15 @@ class Client:
     def receive_message(sock: socket):
         try:
             # get the size of the message
-            size = int.from_bytes(bytes=sock.recv(4), byteorder='big', signed=False)
+            # print("processing_request")
+            b = sock.recv(4)
+            # print("check for closed connection")
+            if not b:
+                # socket closed by Server
+                print("Socket closed by Server. Do a register!")
+                sock.close()
+                return None
+            size = int.from_bytes(bytes=b, byteorder='big', signed=False)
             # get the message itself
             data = sock.recv(size)
             # decode the data
@@ -273,11 +321,15 @@ class Client:
             # TODO: handle with malformed request (Exception thrown by json.loads(payload))
             # one possible failure occurs if the size is wrong.
             # The client is not able to receive any message, because it will not get the right size.
-            print("malformed")
+            print("RECEIVED MSG WAS MALFORMED")
         except socket.timeout:
             # close connection if socket timed out
             sock.close()
         return {}
+
+
+def test_wrong_size():
+    pass
 
 
 if __name__ == '__main__':

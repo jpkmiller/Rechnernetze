@@ -138,15 +138,40 @@ def broadcast_clients(msg: bytes, exclude=None):
         except ConnectionResetError:
             continue
 
-# def set_client_flag(addr):
-#     with CLIENTS_LOCK:
-#         if clientList[addr_to_nick[addr]][3]:
-#             CLIENTS_LOCK.release()
-#             return
-#         clientList[addr_to_nick[addr]][3] = True
+
+def receive_message(conn: socket.socket) -> bytes or None:
+    conn.settimeout(10)
+    try:
+        # get the size of the message
+        print("processing_request")
+        b = conn.recv(4)
+        print("check for closed connection")
+        if not b:
+            # socket closed by client
+            print("Socket closed by client")
+            unregister_client(addr_to_nick[addr], addr)
+            conn.close()
+            return None
+        print(b)
+        size = int.from_bytes(bytes=b, byteorder='big', signed=False)
+        # get the message itself
+        return conn.recv(size)
+    except ConnectionResetError:
+        unregister_client(addr_to_nick[addr], addr)
+        return b''
+    except socket.timeout:
+        # do not close the connection if a timeout raised. maybe handle this differently?
+        return b''
+    except TypeError:
+        return b''
+
 
 # tries to receive the data, decodes it and delegates the request to the corresponding function
 def process_request(conn: socket.socket, addr: tuple):
+    # with CLIENTS_LOCK:
+    #     if not clientList[addr_to_nick[addr]][3].acquire(blocking=False):
+    #         CLIENTS_LOCK.release()
+    #         return
     try:
         # get the size of the message
         print("processing_request")
@@ -154,6 +179,7 @@ def process_request(conn: socket.socket, addr: tuple):
         print("check for closed connection")
         if b == 0:
             # socket closed by client
+            unregister_client(addr_to_nick[addr], addr)
             conn.close()
             return
         print(b)
@@ -182,6 +208,9 @@ def process_request(conn: socket.socket, addr: tuple):
     except TypeError:
         print("wrong format")
         conn.close()
+    # finally:
+    #     with CLIENTS_LOCK:
+    #         clientList[addr_to_nick[addr]][3].release()
     # get message type and delegate the request
     msg_type = payload_dict['type']
     try:
