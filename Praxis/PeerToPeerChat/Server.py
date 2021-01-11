@@ -5,10 +5,15 @@ import threading
 import select
 from concurrent.futures import ThreadPoolExecutor
 
-My_IP = '127.0.0.1'
-server_ip = [127, 0, 0, 1]
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(("9.9.9.9", 80))
+VPN_IP = s.getsockname()[0]
+s.close()
+
+My_IP = VPN_IP
+server_ip = [141, 37, 200, 32]
 print(My_IP)
-My_PORT = 2000
+My_PORT = 50010
 server_activity_period = 30
 tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcp_sock.bind((My_IP, My_PORT))
@@ -27,7 +32,7 @@ def pack_payload(json_string):
     # create a bytearray since they are mutable (bytes are not)
     payload_msg = bytearray(json_string, 'utf-8')
     # extract the length in bytes
-    msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='big', signed=False))
+    msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='little', signed=False))
     # append the payload to the msg size
     msg.extend(payload_msg)
     # convert bytearray to bytes and return it
@@ -183,7 +188,7 @@ def process_request(conn: socket.socket, addr: tuple):
             conn.close()
             return
         print(b)
-        size = int.from_bytes(bytes=b, byteorder='big', signed=False)
+        size = int.from_bytes(bytes=b, byteorder='little', signed=False)
         print("got size")
         # get the message itself
         data = conn.recv(size)

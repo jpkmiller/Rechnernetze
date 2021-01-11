@@ -24,15 +24,19 @@ message_types = ['register', 'deregister', 'send']
 class Client:
 
     def __init__(self, nickname: str = 'shitass', SERVER_IP: str = '127.0.0.1'):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("9.9.9.9", 80))
+        VPN_IP = s.getsockname()[0]
+        s.close()
         self.nickname = nickname
         self.socketUDP = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socketUDP.bind(('127.0.0.1', 0))
+        self.socketUDP.bind((VPN_IP, 0))
         self.socketTCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socketTCP.bind(('127.0.0.1', 0))
+        self.socketTCP.bind((VPN_IP, 0))
         self.socketTCP.listen(1)
         self.serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.ip, self.port = self.socketUDP.getsockname()
-        self.SERVER = SERVER_IP, 2000
+        self.SERVER = SERVER_IP, 50010
         self.CLIENTS_LOCK = threading.Lock()
         self.clients = {}
         self.tcp_to_nick = {}
@@ -211,7 +215,7 @@ class Client:
         # create a bytearray since they are mutable (bytes are not)
         payload_msg = bytearray(json_string, 'utf-8')
         # extract the length in bytes
-        msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='big', signed=False))
+        msg = bytearray(len(payload_msg).to_bytes(length=4, byteorder='little', signed=False))
         # append the payload to the msg size
         msg.extend(payload_msg)
         # convert bytearray to bytes and return it

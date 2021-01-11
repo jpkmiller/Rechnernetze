@@ -1,11 +1,10 @@
 import time
 from Praxis.PeerToPeerChat.Client import Client
 
-walter = Client('Bonito')
-josef = Client('Bomser')
-alex = Client('UNKNOWN')
+alex = Client('alex', SERVER_IP='141.37.200.32')
+walter = Client('walter', SERVER_IP='141.37.200.32')
 time.sleep(1)
 
-josef.send_message('Moin du Eumel', 'Bonito')
+walter.send_message('Moin du Eumel', 'alex')
 time.sleep(10)
-walter.broadcast("lass mi in ruh!")
+alex.broadcast("lass mi in ruh!")
