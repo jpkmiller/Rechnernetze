@@ -65,10 +65,10 @@ class MoodleApp:
         #r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php')
         #self.cookies = r.cookies
 
-        r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf',  cookies=self.cookies, allow_redirects=True)
-        with open('Praxis/HTTP/DownloadContent/task.pdf', 'wb') as f:
-            f.write(r.content)
-        print(r.text)
+        r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf',  cookies=self.cookies, stream=True)
+        with open('Praxis/HTTP/DownloadContent/task.pdf', 'wb') as pdf:
+            for chunk in r.iter_content(chunk_size=1024):
+                pdf.write(chunk)
 
 
     def chatLab5(self):
