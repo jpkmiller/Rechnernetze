@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-
+import webbrowser
 
 class MoodleApp:
     cookies = ''
@@ -54,12 +54,15 @@ class MoodleApp:
         print("downloading task..")
         # TODO: implement method for the download of this lab exercise
 
+        webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1")
+        webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf?forcedownload=1")
+
     def chatLab5(self):
-        print("downloading task..")
+        print("Lab5 chat..")
         # TODO: implement method for receiving and sending messages fom chat "Lab5 Chat"
 
     def uploadTask(self):
-        print("downloading task..")
+        print("upload task..")
         # TODO: implement method for uploading the submission of this lab exercise
 
     def test(self):
