@@ -1,3 +1,6 @@
+import os
+import re
+
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -5,6 +8,7 @@ import webbrowser
 
 class MoodleApp:
     cookies = ''
+    session = requests.Session
 
     def __init__(self, username: str = "rnetin", password: str = "ntsmobil"):
         self.m_username = username
@@ -43,6 +47,7 @@ class MoodleApp:
         }
         r = requests.post('https://moodle.htwg-konstanz.de/moodle/login/index.php', data=payload, cookies=self.cookies)
 
+        self.response = r.text
         self.getkeyinfo(r.text)
         self.getuserid(r.text)
 
@@ -54,8 +59,12 @@ class MoodleApp:
         print("downloading task..")
         # TODO: implement method for the download of this lab exercise
 
-        webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1")
-        webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf?forcedownload=1")
+        #webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1")
+        #webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf?forcedownload=1")
+
+        r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1', cookies=self.cookies)
+        print(r.text)
+
 
     def chatLab5(self):
         print("Lab5 chat..")
@@ -72,3 +81,4 @@ class MoodleApp:
         print("SessionID: " + self.sessionid)
         print("SessionKey:  " + self.sesskey)
         print("UserID: " + self.userid)
+        print(self.cookies)
