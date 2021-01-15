@@ -62,7 +62,12 @@ class MoodleApp:
         #webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1")
         #webbrowser.open("https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf?forcedownload=1")
 
-        r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.docx?forcedownload=1', cookies=self.cookies)
+        #r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php')
+        #self.cookies = r.cookies
+
+        r = requests.get('https://moodle.htwg-konstanz.de/moodle/pluginfile.php/188750/mod_assign/introattachment/0/AIN%20RN%20-%20Laboraufgabe%20-%20HTTP.pdf',  cookies=self.cookies, allow_redirects=True)
+        with open('Praxis/HTTP/DownloadContent/task.pdf', 'wb') as f:
+            f.write(r.content)
         print(r.text)
 
 
