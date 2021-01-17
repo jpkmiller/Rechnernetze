@@ -8,10 +8,16 @@
 * [Ping und Traceroute](/Praxis/PingUndTraceroute)
 * [Socket Monitoring](/Praxis/SocketMonitoring)
 * [Socket Programmierung](/Praxis/Socketprogrammierung)
+* [Peer2Peer](/Praxis/PeerToPeerChat)
+* [Moodle HTTP](/Praxis/HTTP)
 
 ### Theorie
 * [End2End Verzögerung](/Theorie/E2EVerzoegerung)
 * [Paketverlust](/Theorie/Paketverlust)
+* [TCP Congestion Control](/Theorie/TCPCongestionControl)
+* [Socketbefehle und Pakete](/Theorie/SocketbefehleUndPakete)
+* [GoBackN](/Theorie/GoBackN)
+* [VLAN](/Theorie/VLAN)
 
 ## Links and Tools
 
