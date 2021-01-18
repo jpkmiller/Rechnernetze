@@ -84,12 +84,6 @@ class MoodleApp:
                 pdf.write(chunk)
             print("Created pdf successfully.")
 
-    @staticmethod
-    def getCookies(cookie_jar):
-        cookie_dict = cookie_jar.get_dict()
-        found = ['%s=%s' % (name, value) for (name, value) in cookie_dict.items()]
-        return ';'.join(found)
-
     def receive_message(self):
         def get_messages_from_response(response):
             soup = BeautifulSoup(response, 'html.parser')
@@ -116,28 +110,8 @@ class MoodleApp:
             "refresh": "Aktualisieren"
         }
 
-        # idk why.. but Moodle needs specific headers to refresh the content
-        headers = {
-            "Host": "moodle.htwg-konstanz.de",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:84.0) Gecko/20100101 Firefox\/84.0",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Referer": "https://moodle.htwg-konstanz.de/moodle/mod/chat/gui_basic/index.php",
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Content-Length": "82",
-            "Origin": "https://moodle.htwg-konstanz.de",
-            "DNT": "1",
-            "Connection": "keep-alive",
-            "Cookie": MoodleApp.getCookies(self.session.cookies),
-            "Upgrade-Insecure-Requests": "1",
-            "Sec-GPC": "1",
-            "Pragma": "no-cache",
-            "Cache-Control": "no-cache"
-        }
-
-        r = self.session.post('https://moodle.htwg-konstanz.de/moodle/mod/chat/gui_basic/index.php', data=JSON,
-                              headers=headers)
+        r = self.session.post('https://moodle.htwg-konstanz.de/moodle/mod/chat/gui_basic/index.php?id=183', data=JSON,
+                              cookies=self.session.cookies)
         get_messages_from_response(r.text)
 
     def chat(self, message: str):
