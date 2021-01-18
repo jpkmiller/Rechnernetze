@@ -100,17 +100,7 @@ class MoodleApp:
                 print(f"{author[i].text}: {content[i].text} ({t[i].text})")
             print("=============================================")
 
-        last = round(time.time())
-        JSON = {
-            "message": "",
-            "id": "183",
-            "groupid": "0",
-            "last": last,
-            "sesskey": self.session_key,
-            "refresh": "Aktualisieren"
-        }
-
-        r = self.session.post('https://moodle.htwg-konstanz.de/moodle/mod/chat/gui_basic/index.php?id=183', data=JSON,
+        r = self.session.get('https://moodle.htwg-konstanz.de/moodle/mod/chat/gui_basic/index.php?id=183',
                               cookies=self.session.cookies)
         get_messages_from_response(r.text)
 
