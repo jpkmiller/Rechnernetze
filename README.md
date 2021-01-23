@@ -2,6 +2,20 @@
 
 ## Aufgaben
 
+### Klausurvorbereitung
+* [Klausur WS14](/Klausurvorbereitung/WS14)
+* [Klausur SS15](/Klausurvorbereitung/SS15)
+* [Klausur WS15](/Klausurvorbereitung/WS15)
+* [Klausur SS16](/Klausurvorbereitung/SS16)
+* [Klausur SS17](/Klausurvorbereitung/SS17)
+* [Klausur WS17](/Klausurvorbereitung/WS17)
+* [Klausur SS18](/Klausurvorbereitung/SS18)
+* [Klausur WS18](/Klausurvorbereitung/WS18)
+* [Klausur SS19](/Klausurvorbereitung/SS19)
+* [Klausur WS19](/Klausurvorbereitung/WS19)
+* [Test-Klausur WS20](/Klausurvorbereitung/WS20_TestKlausur)
+* [Sonstiges](/Klausurvorbereitung/Other)
+
 ### Praxis
 * [Einführungsaufgabe in Python](/Praxis/Aufgabe1_EventList)
 * [Wireshark](/Praxis/Wireshark)
