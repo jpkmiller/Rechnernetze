@@ -1,8 +1,6 @@
 # Rechnernetze
 
-## Aufgaben
-
-### Klausurvorbereitung
+## Klausurvorbereitung
 * [Klausur WS14](/Klausurvorbereitung/WS14)
 * [Klausur SS15](/Klausurvorbereitung/SS15)
 * [Klausur WS15](/Klausurvorbereitung/WS15)
@@ -15,6 +13,8 @@
 * [Klausur WS19](/Klausurvorbereitung/WS19)
 * [Test-Klausur WS20](/Klausurvorbereitung/WS20_TestKlausur)
 * [Sonstiges](/Klausurvorbereitung/Other)
+
+## Aufgaben
 
 ### Praxis
 * [Einführungsaufgabe in Python](/Praxis/Aufgabe1_EventList)
